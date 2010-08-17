@@ -1,3 +1,7 @@
+"""
+    GDSII library object-oriented interface
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
 from . import GDSII, FormatError, _ignore_record
 from .structure import Structure
 
@@ -95,6 +99,7 @@ class Library(object):
     # TODO remove
     @property
     def structures(self):
+        """List of structures in this library (:class:`pygdsii.structure.Structure`)."""
         return self._structures
 
     def __str__(self):

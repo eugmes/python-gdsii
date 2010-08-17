@@ -1,3 +1,7 @@
+"""
+    GDSII structure interface
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+"""
 from . import GDSII, _ignore_record
 from .elements import ElementBase
 
@@ -42,6 +46,10 @@ class Structure(object):
     # TODO remove
     @property
     def elements(self):
+        """
+        List of elements in the structure.
+        See :mod:`pygdsii.elements` for possible elements.
+        """
         return self._elements
 
     def __str__(self):

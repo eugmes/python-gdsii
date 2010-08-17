@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
-"""Basic GDSII reading types."""
+"""
+    pygdsii - GDSII manipulation library
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    This module contains basic functions and data structures for reading and
+    writing of GDSII files.
+
+    :copyright: © 2010 by Eugeniy Meshcheryakov
+
+    .. seealso::
+
+        :class:`pygdsii.library.Library` for object-oriented interface to GDSII library.
+"""
 import struct
 import math
 from datetime import datetime
@@ -117,25 +129,30 @@ _TYPE_TO_NAME_MAP = (lambda:
 )()
 
 def type_of_tag(tag):
-    """Returns type of a tag.
-    
+    """
+    Returns type of a tag.
+
+    :param tag: tag ID
+    :type tag: int
+    :rtype: int
+
     Examples:
 
         >>> type_of_tag(GDSII.HEADER)
         2
         >>> type_of_tag(GDSII.MASK)
         6
+
     """
     return tag & 0xff
 
 _RECORD_HEADER_FMT = struct.Struct('>HH')
 
 def _read_record(stream):
-    """Reads GDSII element.
-    
-    Return tuple (tag, data).
+    """
+    Reads GDSII element. Return tuple ``(tag, data)``.
     Data is returned as string.
-    Raises `EndOfFileError` if end of file is reached.
+    Raises :exc:`EndOfFileError` if end of file is reached.
     """
     header = stream.read(4)
     if not header or len(header) != 4:
@@ -155,7 +172,8 @@ def _read_record(stream):
     return (tag, data)
 
 def _parse_nodata(data):
-    """Parse NODATA data type.
+    """
+    Parse :const:`NODATA` data type.
 
         >>> _parse_nodata(b'')
         >>> _parse_nodata(b'something')
@@ -167,7 +185,8 @@ def _parse_nodata(data):
         raise IncorrectDataSize('NODATA')
 
 def _parse_bitarray(data):
-    """Parse BITARRAY data type.
+    """
+    Parse :const:`BITARRAY` data type.
 
         >>> _parse_bitarray(b'ab') # ok, 2 bytes
         24930
@@ -186,8 +205,9 @@ def _parse_bitarray(data):
     return val
 
 def _parse_int2(data):
-    """Parse INT2 data type.
-    
+    """
+    Parse INT2 data type.
+
         >>> _parse_int2(b'abcd') # ok, even number of bytes
         (24930, 25444)
         >>> _parse_int2(b'abcde') # odd number of bytes
@@ -204,7 +224,8 @@ def _parse_int2(data):
     return struct.unpack('>%dh' % (len(data)/2), data)
 
 def _parse_int4(data):
-    """Parse INT4 data type.
+    """
+    Parse INT4 data type.
 
         >>> _parse_int4(b'abcd')
         (1633837924,)
@@ -222,8 +243,9 @@ def _parse_int4(data):
     return struct.unpack('>%dl' % (len(data)/4), data)
 
 def _int_to_real(num):
-    """Convert REAL8 from internal integer representation to Python reals.
-    
+    """
+    Convert REAL8 from internal integer representation to Python reals.
+
     Zeroes:
         >>> print(_int_to_real(0x0))
         0.0
@@ -244,7 +266,8 @@ def _int_to_real(num):
     return math.ldexp(sgn * mant, 4 * (exp - 64) - 56)
 
 def _parse_real8(data):
-    """Parse REAL8 data type.
+    """
+    Parse REAL8 data type.
 
         >>> _parse_real8(struct.pack('>3Q', 0x0, 0x4110000000000000, 0xC120000000000000))
         (0.0, 1.0, -2.0)
@@ -263,7 +286,8 @@ def _parse_real8(data):
     return tuple(_int_to_real(n) for n in ints)
 
 def _parse_ascii(data):
-    r"""Parse ASCII data type.
+    r"""
+    Parse ASCII data type.
 
         >>> _parse_ascii(b'') # zero bytes
         Traceback (most recent call last):
@@ -291,9 +315,13 @@ _PARSE_FUNCS = {
 }
 
 def read_record(stream):
-    """Read a GDSII record from file.
-    
-    Returns tuple (tag, data). Data is parsed according the tag format.
+    """
+    Read a GDSII record from file.
+
+    :param stream: GDS file opened for reading in binary mode
+    :returns: tuple ``(tag, data)``. Data is parsed according the tag format
+    :raises: :exc:`UnsupportedTagType` if data cannot be parsed
+    :raises: :exc:`EndOfFileError` if end of file is reached
     """
     tag, data = _read_record(stream)
     typ = type_of_tag(tag)
@@ -304,9 +332,9 @@ def read_record(stream):
     return (tag, parse_func(data))
 
 def _pack_nodata(data):
-    """Pack NODATA tag data.
+    """
+    Pack NODATA tag data. Should always return empty string::
 
-    Should always return empty string:
        >>> packed = _pack_nodata([])
        >>> packed == b''
        True
@@ -316,7 +344,8 @@ def _pack_nodata(data):
     return b''
 
 def _pack_bitarray(data):
-    """Pack BITARRAY tag data.
+    """
+    Pack BITARRAY tag data.
 
         >>> packed = _pack_bitarray(123)
         >>> packed == struct.pack('>H', 123)
@@ -327,7 +356,8 @@ def _pack_bitarray(data):
     return struct.pack('>H', data)
 
 def _pack_int2(data):
-    """Pack INT2 tag data.
+    """
+    Pack INT2 tag data.
 
         >>> _pack_int2([1, 2, -3]) == struct.pack('>3h', 1, 2, -3)
         True
@@ -341,7 +371,8 @@ def _pack_int2(data):
     return struct.pack('>{0}h'.format(size), *data)
 
 def _pack_int4(data):
-    """Pack INT4 tag data.
+    """
+    Pack INT4 tag data.
 
         >>> _pack_int4([1, 2, -3]) == struct.pack('>3l', 1, 2, -3)
         True
@@ -355,8 +386,9 @@ def _pack_int4(data):
     return struct.pack('>{0}l'.format(size), *data)
 
 def _real_to_int(fnum):
-    """Convert REAL8 from Python real to internal integer representation.
-    
+    """
+    Convert REAL8 from Python real to internal integer representation.
+
         >>> '0x%016x' % _real_to_int(0.0)
         '0x0000000000000000'
         >>> print(_int_to_real(_real_to_int(1.0)))
@@ -406,7 +438,8 @@ def _real_to_int(fnum):
     return sign | (exp16_biased << 56) | ieee_mant_comp
 
 def _pack_real8(data):
-    """Pack REAL8 tag data.
+    """
+    Pack REAL8 tag data.
 
         >>> packed = _pack_real8([0, 1, -1, 0.5, 1e-9])
         >>> len(packed)
@@ -418,7 +451,8 @@ def _pack_real8(data):
     return struct.pack('>{0}Q'.format(size), *[_real_to_int(num) for num in data])
 
 def _pack_ascii(data):
-    r"""Pack ASCII tag data.
+    r"""
+    Pack ASCII tag data.
 
         >>> _pack_ascii(b'abcd') == b'abcd'
         True
@@ -440,9 +474,9 @@ _PACK_FUNCS = {
 }
 # TODO implement lazy parsing, maybe
 class RecordData(object):
-    """Class for representing a GDSII record with attached data.
-   
-   Example:
+    """
+    Class for representing a GDSII record with attached data.
+    Example::
 
         >>> r = RecordData(GDSII.STRNAME, 'my_structure')
         >>> '%04x' % r.tag
@@ -455,7 +489,7 @@ class RecordData(object):
         'ASCII'
         >>> r.data
         'my_structure'
-        
+
         >>> r = RecordData(0xffff, 'xxx') # Unknown tag type
         >>> r.tag_name
         '0xffff'
@@ -470,9 +504,9 @@ class RecordData(object):
         self._data = data
 
     def check_tag(self, tag):
-        """Checks if current record has the same tag as the given one.
-
-        Raises `MissingRecord` exception otherwise. For example:
+        """
+        Checks if current record has the same tag as the given one.
+        Raises :exc:`MissingRecord` exception otherwise. For example::
 
             >>> rec = RecordData(GDSII.STRNAME, 'struct')
             >>> rec.check_tag(GDSII.STRNAME)
@@ -485,9 +519,9 @@ class RecordData(object):
             raise MissingRecord(self._tag)
 
     def check_size(self, size):
-        """Checks if data size equals to the given size.
-
-        Raises `DataSizeError` otherwise. For exmaple:
+        """
+        Checks if data size equals to the given size.
+        Raises :exc:`DataSizeError` otherwise. For example::
 
             >>> rec = RecordData(GDSII.DATATYPE, (0,))
             >>> rec.check_size(1)
@@ -500,7 +534,14 @@ class RecordData(object):
             raise DataSizeError(self._tag)
 
     def save(self, stream):
-        """Save record to a GDS file."""
+        """
+        Save record to a GDS file.
+
+        :param stream: file opened for writing in binary mode
+        :raises: :exc:`UnsupportedTagType` if tag type is not supported
+        :raises: :exc:`FormatError` on incorrect data sizes, etc
+        :raises: whatever :func:`struct.pack` can raise
+        """
         tag_type = self.tag_type
         try:
             pack_func = _PACK_FUNCS[tag_type]
@@ -546,10 +587,10 @@ class RecordData(object):
 
     @property
     def points(self):
-        """Convert data to list of points.
-        
-        Useful for XY record. Raises `DataSizeError` if data size is incorrect.
-        For example:
+        """
+        Convert data to list of points. Useful for :const:`XY` record.
+        Raises :exc:`DataSizeError` if data size is incorrect.
+        For example::
 
             >>> r = RecordData(GDSII.XY, [0, 1, 2, 3])
             >>> r.points
@@ -572,9 +613,9 @@ class RecordData(object):
 
     @property
     def times(self):
-        """Convert data to tuple (modification time, access time).
-
-        Useful for BGNLIB and BGNSTR.
+        """
+        Convert data to tuple ``(modification time, access time)``.
+        Useful for :const:`BGNLIB` and :const:`BGNSTR`.
 
             >>> r = RecordData(GDSII.BGNLIB, [100, 1, 1, 1, 2, 3, 110, 8, 14, 21, 10, 35])
             >>> print(r.times[0].isoformat())
@@ -593,9 +634,11 @@ class RecordData(object):
                 datetime(self._data[6]+1900, *self._data[7:12]))
 
 def all_records(stream):
-    """Generator function for iterating over all records in a GDSII file.
+    """
+    Generator function for iterating over all records in a GDSII file.
+    Yields :class:`RecordData` objects.
 
-    Yields `RecordData` objects.
+    :param stream: GDS file opened for reading in binary mode
     """
     last = False
     while not last:
@@ -605,7 +648,15 @@ def all_records(stream):
         yield RecordData(tag, data)
 
 def _ignore_record(recs, lastrec, tag):
-    """Returns next record is lastrec has given tag, otherwise returns lastrec."""
+    """
+    Returns next record is ``lastrec`` has given tag,
+    otherwise returns ``lastrec``.
+
+    :param recs: :class:`RecordData` generator
+    :type recs: iterable
+    :param lastrec: last read record
+    :type lastrec: :class:`RecordData`
+    """
     if lastrec.tag != tag:
         return lastrec
     return next(recs)

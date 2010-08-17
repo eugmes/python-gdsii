@@ -1,3 +1,27 @@
+"""
+    GDSII element classes
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    This module contains definitions for classes representing
+    various GDSII elements. Mapping between GDSII elements and
+    classes is given in the following table:
+
+        +-------------------+--------------------------+
+        | :const:`AREF`     | :class:`ARefElement`     |
+        +-------------------+--------------------------+
+        | :const:`BOUNDARY` | :class:`BoundaryElement` |
+        +-------------------+--------------------------+
+        | :const:`BOX`      | :class:`BoxElement`      |
+        +-------------------+--------------------------+
+        | :const:`NODE`     | :class:`NodeElement`     |
+        +-------------------+--------------------------+
+        | :const:`PATH`     | :class:`PathElement`     |
+        +-------------------+--------------------------+
+        | :const:`SREF`     | :class:`SRefElement`     |
+        +-------------------+--------------------------+
+        | :const:`TEXT`     | :class:`TextElement`     |
+        +-------------------+--------------------------+
+"""
 from . import GDSII, FormatError, _ignore_record
 
 class ElementBase(object):
@@ -5,17 +29,21 @@ class ElementBase(object):
     __slots__ = ['_properties']
 
     def __init__(self, **kwargs):
-        """Initialize an element.
-
+        """
+        Initialize an element.
         Accepts list of attributes as keyword arguments.
         """
         self._properties = kwargs.get('properties', [])
 
     @classmethod
     def load(cls, recs, lastrec):
-        """Load an element from file using given generator recs.
+        """
+        Load an element from file using given generator `recs`.
 
-        lastrec should contain first record of an element.
+        :param recs: :class:`pygdsii.RecordData` generator
+        :param lastrec: first record of an element
+        :type lastrec: :class:`pygdsii.RecordData`
+        :returns: new element of class defined by `recs`
         """
         element_class = cls._tag_to_class_map[lastrec.tag]
         if not element_class:
@@ -32,7 +60,7 @@ class ElementBase(object):
         return rec
 
     def _read_rest(self, recs):
-        """Reads properties and ENDEL."""
+        """Reads properties and :const:`ENDEL`."""
         while True:
             rec = next(recs)
             if rec.tag == GDSII.PROPATTR:
@@ -47,20 +75,20 @@ class ElementBase(object):
                 raise FormatError('unexpected tag where PROPATTR or ENDEL are expected')
     
     def read_element(self, recs):
-        """Read element using recs generator."""
+        """Read element using `recs` generator."""
         raise NotImplementedError
 
     # TODO delete
     @property
     def properties(self):
-        """Dictionary containing properties of an element.
-
+        """
+        Dictionary containing properties of an element.
         Keys should be integers. Values are byte strings.
         """
         return self._properties
 
 class ElementWithLayer(ElementBase):
-    """Abstract base class for all elements containing LAYER."""
+    """Abstract base class for all elements containing :const:`LAYER`."""
     __slots__ = ['_layer']
 
     def __init__(self, **kwargs):
@@ -68,7 +96,7 @@ class ElementWithLayer(ElementBase):
         self._layer = kwargs.get('layer', 0)
 
     def _read_start(self, recs):
-        """Reads layer definition and returns None."""
+        """Reads layer definition and returns :const:`None`."""
         rec = ElementBase._read_start(self, recs)
         rec.check_tag(GDSII.LAYER)
         rec.check_size(1)
@@ -80,7 +108,7 @@ class ElementWithLayer(ElementBase):
         return self._layer
 
 class ElementWithLayerAndDataType(ElementWithLayer):
-    """Abstract base class for all elements with LAYER and DATATYPE."""
+    """Abstract base class for all elements with :const:`LAYER` and :const:`DATATYPE`."""
     __slots__ = ['_data_type']
 
     def __init__(self, **kwargs):
@@ -100,7 +128,7 @@ class ElementWithLayerAndDataType(ElementWithLayer):
         return self._data_type
 
 class BoundaryElement(ElementWithLayerAndDataType):
-    """Class for BOUNDARY GDSII element."""
+    """Class for :const:`BOUNDARY` GDSII element."""
     __slots__ = ['_points']
 
     def __init__(self, **kwargs):
@@ -119,14 +147,14 @@ class BoundaryElement(ElementWithLayerAndDataType):
 
     @property
     def points(self):
-        """List of points.
-
+        """
+        List of points.
         At least 4 are required for a valid element.
         """
         return self._points
 
 class PathElement(ElementWithLayerAndDataType):
-    """Class for PATH GDSII element."""
+    """Class for :const:`PATH` GDSII element."""
     __slots__ = ['_path_type', '_width', '_bgn_extn', '_end_extn', '_points']
 
     def __init__(self, **kwargs):
@@ -165,20 +193,20 @@ class PathElement(ElementWithLayerAndDataType):
 
     @property
     def path_type(self):
-        """Path type (integer, optional).
-        
-        Meaning:
-           0 - square ends, flush with endpoints
-           1 - round ends, centered at endpoints
-           2 - square ends, centered at endpoints
-           4 - square ends, extended by `bgn_extn` and `end_extn`
+        """
+        Path type (integer, optional). Meaning:
+
+        * 0 - square ends, flush with endpoints
+        * 1 - round ends, centered at endpoints
+        * 2 - square ends, centered at endpoints
+        * 4 - square ends, extended by :attr:`bgn_extn` and :attr:`end_extn`
         """
         return self._path_type
 
     @property
     def width(self):
-        """Width of the path (integer, optional).
-        
+        """
+        Width of the path (integer, optional).
         Absoute if negative.
         """
         return self._width
@@ -195,14 +223,14 @@ class PathElement(ElementWithLayerAndDataType):
 
     @property
     def points(self):
-        """List of points.
-
+        """
+        List of points.
         At least 2 are required for a valid element.
         """
         return self._points
 
 class SRefElement(ElementBase):
-    """Class for SREF GDSII element."""
+    """Class for :const:`SREF` GDSII element."""
     __slots__ = ['_struct_name', '_strans', '_mag', '_angle', '_points']
 
     def _read_start(self, recs):
@@ -261,14 +289,14 @@ class SRefElement(ElementBase):
 
     @property
     def points(self):
-        """List of points.
-
+        """
+        List of points.
         Exactly one point is required.
         """
         return self._points
 
 class ARefElement(SRefElement):
-    """Class for AREF GDSII element."""
+    """Class for :const:`AREF` GDSII element."""
     __slots__ = ['_cols', '_rows']
 
     def __init__(self, **kwargs):
@@ -302,7 +330,7 @@ class ARefElement(SRefElement):
     # TODO reimplement points
 
 class TextElement(ElementWithLayer):
-    """Class for TEXT GDSII element."""
+    """Class for :const:`TEXT` GDSII element."""
     __slots__ = ['_text_type', '_presentation', '_path_type', '_width', '_strans', '_mag', '_angle', '_points', '_string']
     def __init__(self, **kwargs):
         ElementWithLayer.__init__(self, **kwargs)
@@ -372,19 +400,20 @@ class TextElement(ElementWithLayer):
 
     @property
     def presentation(self):
-        """Bit array that specifies how the text is presented (optional).
-        
+        """
+        Bit array that specifies how the text is presented (optional).
         Meaning of bits:
-           * Bits 10 and 11 specify font number (0-3).
-           * Bits 12 and 13 specify vertical justification (0 - top, 1 - middle, 2 - bottom).
-           * Bits 14 and 15 specify horizontal justification (0 - left, 1 - center, 2 - rigth).
+
+        * Bits 10 and 11 specify font number (0-3).
+        * Bits 12 and 13 specify vertical justification (0 - top, 1 - middle, 2 - bottom).
+        * Bits 14 and 15 specify horizontal justification (0 - left, 1 - center, 2 - rigth).
         """
         return self._presentation
 
     @property
     def width(self):
-        """Width of the path (integer, optional).
-        
+        """
+        Width of the path (integer, optional).
         Absoulte if negative.
         """
         return self._width
@@ -395,8 +424,8 @@ class TextElement(ElementWithLayer):
 
     @property
     def strans(self):
-        """Bit array that specifies transformation (optional).
-
+        """
+        Bit array that specifies transformation (optional).
         Bit 0 specifies reflection.
         """
         return self._strans
@@ -421,7 +450,7 @@ class TextElement(ElementWithLayer):
         return self._string
 
 class NodeElement(ElementWithLayer):
-    """Class for NODE GDSII element."""
+    """Class for :const:`NODE` GDSII element."""
     __slots__ = ['_node_type', '_points']
 
     def __init__(self, **kwargs):
@@ -456,7 +485,7 @@ class NodeElement(ElementWithLayer):
         return self._points
 
 class BoxElement(ElementWithLayer):
-    """Class for BOX GDSII element."""
+    """Class for :const:`BOX` GDSII element."""
     __slots__ = ['_box_type', '_points']
 
     def __init__(self, **kwargs):
