@@ -314,23 +314,6 @@ _PARSE_FUNCS = {
     GDSIIType.ASCII: _parse_ascii
 }
 
-def read_record(stream):
-    """
-    Read a GDSII record from file.
-
-    :param stream: GDS file opened for reading in binary mode
-    :returns: tuple ``(tag, data)``. Data is parsed according the tag format
-    :raises: :exc:`UnsupportedTagType` if data cannot be parsed
-    :raises: :exc:`EndOfFileError` if end of file is reached
-    """
-    tag, data = _read_record(stream)
-    typ = type_of_tag(tag)
-    try:
-        parse_func = _PARSE_FUNCS[typ]
-    except KeyError:
-        raise UnsupportedTagType(typ)
-    return (tag, parse_func(data))
-
 def _pack_nodata(data):
     """
     Pack NODATA tag data. Should always return empty string::
@@ -533,6 +516,24 @@ class RecordData(object):
         if len(self._data) != size:
             raise DataSizeError(self._tag)
 
+    @classmethod
+    def read(cls, stream):
+        """
+        Read a GDSII record from file.
+
+        :param stream: GDS file opened for reading in binary mode
+        :returns: a new :class:`RecordData` instance
+        :raises: :exc:`UnsupportedTagType` if data cannot be parsed
+        :raises: :exc:`EndOfFileError` if end of file is reached
+        """
+        tag, data = _read_record(stream)
+        typ = type_of_tag(tag)
+        try:
+            parse_func = _PARSE_FUNCS[typ]
+        except KeyError:
+            raise UnsupportedTagType(typ)
+        return cls(tag, parse_func(data))
+
     def save(self, stream):
         """
         Save record to a GDS file.
@@ -642,10 +643,10 @@ def all_records(stream):
     """
     last = False
     while not last:
-        tag, data = read_record(stream)
-        if tag == GDSII.ENDLIB:
+        rec = RecordData.read(stream)
+        if rec.tag == GDSII.ENDLIB:
             last = True
-        yield RecordData(tag, data)
+        yield rec
 
 def _ignore_record(recs, lastrec, tag):
     """
