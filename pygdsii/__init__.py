@@ -483,11 +483,11 @@ class RecordData(object):
         :raises: :exc:`EndOfFileError` if end of file is reached
         """
         tag, data = _read_record(stream)
-        typ = type_of_tag(tag)
+        tag_type = type_of_tag(tag)
         try:
-            parse_func = _PARSE_FUNCS[typ]
+            parse_func = _PARSE_FUNCS[tag_type]
         except KeyError:
-            raise UnsupportedTagType(typ)
+            raise UnsupportedTagType(tag_type)
         return cls(tag, parse_func(data))
 
     def save(self, stream):
@@ -532,9 +532,9 @@ class RecordData(object):
     @property
     def tag_type_name(self):
         """Tag data type name, if known, and formatted number otherwise."""
-        typ = type_of_tag(self._tag)
-        if typ in _TYPE_TO_NAME_MAP:
-            return _TYPE_TO_NAME_MAP[typ]
+        tag_type = type_of_tag(self._tag)
+        if tag_type in _TYPE_TO_NAME_MAP:
+            return _TYPE_TO_NAME_MAP[tag_type]
         return '0x%02x' % typ
 
     @property
