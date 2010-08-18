@@ -410,17 +410,44 @@ class RecordData(object):
     """
     __slots__ = ['_tag', '_data']
 
-    def __init__(self, tag, data):
+    def __init__(self, tag, data=None, points=None, times=None):
         """Initialize with tag and parsed data."""
         self._tag = tag
-        self._data = data
+        if data is not None:
+            self._data = data
+        elif points is not None:
+            new_data = []
+            # TODO make it faster
+            for point in points:
+                new_data.append(point[0])
+                new_data.append(point[1])
+            self._data = new_data
+        elif times is not None:
+            mod_time = times[0]
+            acc_time = times[1]
+            return [
+                mod_time.year - 1900,
+                mod_time.month,
+                mod_time.day,
+                mod_time.hour,
+                mod_time.minute,
+                mod_time.secunde,
+                acc_time.year - 1900,
+                acc_time.month,
+                acc_time.day,
+                acc_time.hour,
+                acc_time.minute,
+                acc_time.secunde,
+            ]
+        else:
+            raise TypeErrror('at least one optional argument is required')
 
     def check_tag(self, tag):
         """
         Checks if current record has the same tag as the given one.
         Raises :exc:`MissingRecord` exception otherwise. For example::
 
-            >>> rec = RecordData(GDSII.STRNAME, 'struct')
+            >>> rec = RecordData(GDSII.STRNAME, b'struct')
             >>> rec.check_tag(GDSII.STRNAME)
             >>> rec.check_tag(GDSII.DATATYPE)
             Traceback (most recent call last):
@@ -579,8 +606,8 @@ def all_records(stream):
 
 def _ignore_record(recs, lastrec, tag):
     """
-    Returns next record is ``lastrec`` has given tag,
-    otherwise returns ``lastrec``.
+    Returns next record is `lastrec` has given tag,
+    otherwise returns `lastrec`.
 
     :param recs: :class:`RecordData` generator
     :type recs: iterable
