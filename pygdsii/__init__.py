@@ -105,6 +105,7 @@ def _parse_nodata(data):
     Parse :const:`NODATA` data type.
 
         >>> _parse_nodata(b'')
+        ()
         >>> _parse_nodata(b'something')
         Traceback (most recent call last):
             ...
@@ -112,6 +113,7 @@ def _parse_nodata(data):
     """
     if len(data):
         raise IncorrectDataSize('NODATA')
+    return ()
 
 def _parse_bitarray(data):
     """
@@ -440,7 +442,7 @@ class RecordData(object):
                 acc_time.secunde,
             ]
         else:
-            raise TypeErrror('at least one optional argument is required')
+            raise TypeError('at least one optional argument is required')
 
     def check_tag(self, tag):
         """
@@ -535,7 +537,7 @@ class RecordData(object):
         tag_type = type_of_tag(self._tag)
         if tag_type in _TYPE_TO_NAME_MAP:
             return _TYPE_TO_NAME_MAP[tag_type]
-        return '0x%02x' % typ
+        return '0x%02x' % tag_type
 
     @property
     def data(self):
