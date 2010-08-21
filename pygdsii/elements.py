@@ -28,12 +28,12 @@ class ElementBase(object):
     """Base class for all GDSII elements."""
     __slots__ = ['_properties']
 
-    def __init__(self, **kwargs):
+    def __init__(self, properties):
         """
         Initialize an element.
         Accepts list of attributes as keyword arguments.
         """
-        self._properties = kwargs.get('properties', [])
+        self._properties = properties
 
     @classmethod
     def load(cls, recs, lastrec):
@@ -48,12 +48,15 @@ class ElementBase(object):
         element_class = cls._tag_to_class_map[lastrec.tag]
         if not element_class:
             raise FormatError('unexpected element tag')
-        new_element = element_class()
-        new_element.read_element(recs)
+        # do not call __init__() during reading from file
+        # __init__() should require some arguments
+        new_element = cls.__new__(element_class)
+        new_element._read_element(recs)
         return new_element
 
     def _read_start(self, recs):
         """Ignores common optional records and returns next one."""
+        self._properties = []
         # ignore ELFLAGS, PLEX
         rec = _ignore_record(recs, next(recs), GDSII.ELFLAGS)
         rec = _ignore_record(recs, rec, GDSII.PLEX)
@@ -74,7 +77,7 @@ class ElementBase(object):
             else:
                 raise FormatError('unexpected tag where PROPATTR or ENDEL are expected')
     
-    def read_element(self, recs):
+    def _read_element(self, recs):
         """Read element using `recs` generator."""
         raise NotImplementedError
 
@@ -91,9 +94,9 @@ class ElementWithLayer(ElementBase):
     """Abstract base class for all elements containing :const:`LAYER`."""
     __slots__ = ['_layer']
 
-    def __init__(self, **kwargs):
-        ElementBase.__init__(self, **kwargs)
-        self._layer = kwargs.get('layer', 0)
+    def __init__(self, layer, properties):
+        ElementBase.__init__(self, properties)
+        self._layer = layer
 
     def _read_start(self, recs):
         """Reads layer definition and returns :const:`None`."""
@@ -111,9 +114,9 @@ class ElementWithLayerAndDataType(ElementWithLayer):
     """Abstract base class for all elements with :const:`LAYER` and :const:`DATATYPE`."""
     __slots__ = ['_data_type']
 
-    def __init__(self, **kwargs):
-        ElementWithLayer.__init__(self, **kwargs)
-        self._data_type = kwargs.get('data_type', 0)
+    def __init__(self, layer, data_type, properties):
+        ElementWithLayer.__init__(self, layer, properties)
+        self._data_type = data_type
 
     def _read_start(self, recs):
         ElementWithLayer._read_start(self, recs)
@@ -131,12 +134,12 @@ class BoundaryElement(ElementWithLayerAndDataType):
     """Class for :const:`BOUNDARY` GDSII element."""
     __slots__ = ['_points']
 
-    def __init__(self, **kwargs):
-        ElementWithLayerAndDataType.__init__(self, **kwargs)
-        self._points = kwargs.get('points', []) # invalid!
+    def __init__(self, layer, data_type, points, properties=[]):
+        ElementWithLayerAndDataType.__init__(self, layer, data_type, properties)
+        self._points = points
         # TODO check if passed points are valid
 
-    def read_element(self, recs):
+    def _read_element(self, recs):
         self._read_start(recs)
         rec = next(recs)
         rec.check_tag(GDSII.XY)
@@ -157,17 +160,22 @@ class PathElement(ElementWithLayerAndDataType):
     """Class for :const:`PATH` GDSII element."""
     __slots__ = ['_path_type', '_width', '_bgn_extn', '_end_extn', '_points']
 
-    def __init__(self, **kwargs):
-        ElementWithLayerAndDataType.__init__(self, **kwargs)
-        self._path_type = kwargs.get('path_type')
-        self._width = kwargs.get('width')
-        self._bgn_extn = kwargs.get('bgn_extn')
-        self._end_extn = kwargs.get('end_extn')
-        self._points = kwargs.get('points', [])
+    def __init__(self, layer, data_type, points,
+            path_type = None, width=None, bgn_extn=None, end_extn=None, properties=[]):
+        ElementWithLayerAndDataType.__init__(self, layer, data_type, properties)
+        self._points = points
         # TODO Check if points are valid
+        self._path_type = path_type
+        self._width = width
+        self._bgn_extn = bgn_extn
+        self._end_extn = end_extn
 
-    def read_element(self, recs):
+    def _read_element(self, recs):
         self._read_start(recs)
+        self._path_type = None
+        self._width = None
+        self._bgn_extn = None
+        self._end_extn = None
         rec = next(recs)
         if rec.tag == GDSII.PATHTYPE:
             rec.check_size(1)
@@ -237,6 +245,9 @@ class SRefElement(ElementBase):
         rec = ElementBase._read_start(self, recs)
         rec.check_tag(GDSII.SNAME)
         self._struct_name = rec.data
+        self._strans = None
+        self._mag = None
+        self._angle = None
         rec = next(recs)
         if rec.tag == GDSII.STRANS:
             self._strans = rec.data
@@ -251,16 +262,16 @@ class SRefElement(ElementBase):
                 rec = next(recs)
         return rec
 
-    def __init__(self, **kwargs):
-        ElementBase.__init__(self, **kwargs)
-        self._struct_name = kwargs.get('struct_name', b'')
-        self._strans = kwargs.get('strans')
-        self._mag = kwargs.get('mag')
-        self._angle = kwargs.get('angle')
-        self._points = kwargs.get('points', [])
+    def __init__(self, struct_name, points, strans=None, mag=None, angle=None, properties=[]):
+        ElementBase.__init__(self, properties)
+        self._struct_name = struct_name
+        self._points = points
         # TODO check if points are valid
+        self._strans = strans
+        self._mag = mag
+        self._angle = angle
 
-    def read_element(self, recs):
+    def _read_element(self, recs):
         rec = self._read_start(recs)
         rec.check_tag(GDSII.XY)
         self._points = rec.points
@@ -299,12 +310,13 @@ class ARefElement(SRefElement):
     """Class for :const:`AREF` GDSII element."""
     __slots__ = ['_cols', '_rows']
 
-    def __init__(self, **kwargs):
-        SRefElement.__init__(self, **kwargs)
-        self._cols = kwargs.get('cols', 1)
-        self._rows = kwargs.get('rows', 1)
+    def __init__(self, struct_name, points, cols, rows,
+            strans=None, mag=None, angle=None, properties=[]):
+        SRefElement.__init__(self, struct_name, points, strans, mag, angle, properties)
+        self._cols = cols
+        self._rows = rows
 
-    def read_element(self, recs):
+    def _read_element(self, recs):
         rec = self._read_start(recs)
         rec.check_tag(GDSII.COLROW)
         rec.check_size(2)
@@ -332,27 +344,35 @@ class ARefElement(SRefElement):
 class TextElement(ElementWithLayer):
     """Class for :const:`TEXT` GDSII element."""
     __slots__ = ['_text_type', '_presentation', '_path_type', '_width', '_strans', '_mag', '_angle', '_points', '_string']
-    def __init__(self, **kwargs):
-        ElementWithLayer.__init__(self, **kwargs)
-        self._text_type = kwargs.get('text_type', 0)
-        self._presentation = kwargs.get('presentation')
-        self._path_type = kwargs.get('path_type')
-        self._width = kwargs.get('width')
-        self._strans = kwargs.get('strans')
-        self._mag = kwargs.get('mag')
-        self._angle = kwargs.get('angle')
-        self._points = kwargs.get('points', [])
+    def __init__(self, layer, text_type, points, string,
+            presentation=None, path_type=None, width=None, strans=None, mag=None, angle=None, properties=[]):
+        ElementWithLayer.__init__(self, layer, properties)
+        self._text_type = text_type
+        self._presentation = presentation
+        self._path_type = path_type
+        self._width = width
+        self._strans = strans
+        self._mag = mag
+        self._angle = angle
+        self._points = points
         # TODO check points
-        self._string = kwargs.get('string', b'')
+        self._string = string
         # TODO check string
 
-    def read_element(self, recs):
+    def _read_element(self, recs):
         self._read_start(recs)
         rec = next(recs)
         rec.check_tag(GDSII.TEXTTYPE)
         rec.check_size(1)
         self._text_type = rec.data[0]
-        
+
+        self._presentation = None
+        self._path_type = None
+        self._width = None
+        self._strans = None
+        self._mag = None
+        self._angle = None
+
         rec = next(recs)
         if rec.tag == GDSII.PRESENTATION:
             self._presentation = rec.data
@@ -453,13 +473,13 @@ class NodeElement(ElementWithLayer):
     """Class for :const:`NODE` GDSII element."""
     __slots__ = ['_node_type', '_points']
 
-    def __init__(self, **kwargs):
-        ElementWithLayer.__init__(self, **kwargs)
-        self._node_type = kwargs.get('node_type', 0)
-        self._points = kwargs.get('points', [])
+    def __init__(self, layer, node_type, points, properties=[]):
+        ElementWithLayer.__init__(self, layer, properties)
+        self._node_type = node_type
+        self._points = points
         # TODO check points
 
-    def read_element(self, recs):
+    def _read_element(self, recs):
         self._read_start(recs)
 
         rec = next(recs)
@@ -488,13 +508,13 @@ class BoxElement(ElementWithLayer):
     """Class for :const:`BOX` GDSII element."""
     __slots__ = ['_box_type', '_points']
 
-    def __init__(self, **kwargs):
-        ElementWithLayer.__init__(self, **kwargs)
-        self._box_type = kwargs.get('box_type', 0)
-        self._points = kwargs.get('points', [])
+    def __init__(self, layer, box_type, points, properties=[]):
+        ElementWithLayer.__init__(self, layer, properties)
+        self._box_type = box_type
+        self._points = points
         # TODO check points
 
-    def read_element(self, recs):
+    def _read_element(self, recs):
         self._read_start(recs)
 
         rec = next(recs)
