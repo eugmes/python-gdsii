@@ -130,6 +130,63 @@ class ElementWithLayerAndDataType(ElementWithLayer):
         """Data type (integer)."""
         return self._data_type
 
+class ReferenceElement(ElementBase):
+    """Abstract base class for reference elements, :const:`SREF` and :const:`AREF`."""
+    __slots__ = ['_struct_name', '_strans', '_mag', '_angle', '_point']
+
+    def _read_start(self, recs):
+        rec = ElementBase._read_start(self, recs)
+        rec.check_tag(GDSII.SNAME)
+        self._struct_name = rec.data
+        self._strans = None
+        self._mag = None
+        self._angle = None
+        rec = next(recs)
+        if rec.tag == GDSII.STRANS:
+            self._strans = rec.data
+            rec = next(recs)
+            if rec.tag == GDSII.MAG:
+                rec.check_size(1)
+                self._mag = rec.data[0]
+                rec = next(recs)
+            if rec.tag == GDSII.ANGLE:
+                rec.check_size(1)
+                self._angle = rec.data[0]
+                rec = next(recs)
+        return rec
+
+    def __init__(self, struct_name, point, strans, mag, angle, properties):
+        ElementBase.__init__(self, properties)
+        self._struct_name = struct_name
+        self._point = point
+        self._strans = strans
+        self._mag = mag
+        self._angle = angle
+
+    @property
+    def struct_name(self):
+        """Name of a referenced structure (byte array)."""
+        return self._struct_name
+
+    @property
+    def strans(self):
+        return self._strans
+
+    @property
+    def mag(self):
+        """Magnification (real, optional)."""
+        return self._mag
+
+    @property
+    def angle(self):
+        """Rotation angle (real, optional)."""
+        return self._angle
+
+    @property
+    def point(self):
+        return self._point
+
+
 class BoundaryElement(ElementWithLayerAndDataType):
     """Class for :const:`BOUNDARY` GDSII element."""
     __slots__ = ['_points']
@@ -143,16 +200,19 @@ class BoundaryElement(ElementWithLayerAndDataType):
         self._read_start(recs)
         rec = next(recs)
         rec.check_tag(GDSII.XY)
-        self._points = rec.points
-        if len(self._points) < 4:
+        points = rec.points
+        if len(points) < 4:
             raise FormatError('less then 4 points in BOUNDARY')
+        if points[0] != points[-1]:
+            raise FormatError('BOUNDARY should be closed')
+        self._points = points[:-1]
         self._read_rest(recs)
 
     @property
     def points(self):
         """
         List of points.
-        At least 4 are required for a valid element.
+        At least 3 are required for a valid element.
         """
         return self._points
 
@@ -237,84 +297,32 @@ class PathElement(ElementWithLayerAndDataType):
         """
         return self._points
 
-class SRefElement(ElementBase):
+class SRefElement(ReferenceElement):
     """Class for :const:`SREF` GDSII element."""
-    __slots__ = ['_struct_name', '_strans', '_mag', '_angle', '_points']
 
-    def _read_start(self, recs):
-        rec = ElementBase._read_start(self, recs)
-        rec.check_tag(GDSII.SNAME)
-        self._struct_name = rec.data
-        self._strans = None
-        self._mag = None
-        self._angle = None
-        rec = next(recs)
-        if rec.tag == GDSII.STRANS:
-            self._strans = rec.data
-            rec = next(recs)
-            if rec.tag == GDSII.MAG:
-                rec.check_size(1)
-                self._mag = rec.data[0]
-                rec = next(recs)
-            if rec.tag == GDSII.ANGLE:
-                rec.check_size(1)
-                self._angle = rec.data[0]
-                rec = next(recs)
-        return rec
-
-    def __init__(self, struct_name, points, strans=None, mag=None, angle=None, properties=[]):
-        ElementBase.__init__(self, properties)
-        self._struct_name = struct_name
-        self._points = points
-        # TODO check if points are valid
-        self._strans = strans
-        self._mag = mag
-        self._angle = angle
+    def __init__(self, struct_name, point, strans=None, mag=None, angle=None, properties=[]):
+        ReferenceElement.__init__(self, struct_name, point, strans, mag, angle, properties)
 
     def _read_element(self, recs):
         rec = self._read_start(recs)
         rec.check_tag(GDSII.XY)
-        self._points = rec.points
-        if len(self._points) != 1:
+        points = rec.points
+        if len(points) != 1:
             raise FormatError('SREF should contain 1 point')
+        self._point = points[0]
         self._read_rest(recs)
 
-    @property
-    def struct_name(self):
-        """Name of a referenced structure (byte array)."""
-        return self._struct_name
-
-    @property
-    def strans(self):
-        return self._strans
-
-    @property
-    def mag(self):
-        """Magnification (real, optional)."""
-        return self._mag
-
-    @property
-    def angle(self):
-        """Rotation angle (real, optional)."""
-        return self._angle
-
-    @property
-    def points(self):
-        """
-        List of points.
-        Exactly one point is required.
-        """
-        return self._points
-
-class ARefElement(SRefElement):
+class ARefElement(ReferenceElement):
     """Class for :const:`AREF` GDSII element."""
-    __slots__ = ['_cols', '_rows']
+    __slots__ = ['_cols', '_rows', '_col_off', '_row_off']
 
-    def __init__(self, struct_name, points, cols, rows,
+    def __init__(self, struct_name, point, cols, rows, col_off, row_off,
             strans=None, mag=None, angle=None, properties=[]):
-        SRefElement.__init__(self, struct_name, points, strans, mag, angle, properties)
+        ReferenceElement.__init__(self, struct_name, point, strans, mag, angle, properties)
         self._cols = cols
         self._rows = rows
+        self._col_off = col_off
+        self._row_off = row_off
 
     def _read_element(self, recs):
         rec = self._read_start(recs)
@@ -324,9 +332,10 @@ class ARefElement(SRefElement):
         
         rec = next(recs)
         rec.check_tag(GDSII.XY)
-        self._points = rec.points
-        if len(self._points) != 3:
+        points = rec.points
+        if len(points) != 3:
             raise FormatError('AREF should contain 3 points')
+        self._point, self._col_off, self._row_off = points
         self._read_rest(recs)
 
     @property
@@ -339,12 +348,18 @@ class ARefElement(SRefElement):
         """Number of rows (integer)."""
         return self._rows
 
-    # TODO reimplement points
+    @property
+    def col_off(self):
+        return self._col_off
+
+    @property
+    def row_off(self):
+        return self._row_off
 
 class TextElement(ElementWithLayer):
     """Class for :const:`TEXT` GDSII element."""
-    __slots__ = ['_text_type', '_presentation', '_path_type', '_width', '_strans', '_mag', '_angle', '_points', '_string']
-    def __init__(self, layer, text_type, points, string,
+    __slots__ = ['_text_type', '_presentation', '_path_type', '_width', '_strans', '_mag', '_angle', '_point', '_string']
+    def __init__(self, layer, text_type, point, string,
             presentation=None, path_type=None, width=None, strans=None, mag=None, angle=None, properties=[]):
         ElementWithLayer.__init__(self, layer, properties)
         self._text_type = text_type
@@ -354,7 +369,7 @@ class TextElement(ElementWithLayer):
         self._strans = strans
         self._mag = mag
         self._angle = angle
-        self._points = points
+        self._point = point
         # TODO check points
         self._string = string
         # TODO check string
@@ -402,9 +417,10 @@ class TextElement(ElementWithLayer):
                 rec = next(recs)
 
         rec.check_tag(GDSII.XY)
-        self._points = rec.points
-        if len(self._points) != 1:
+        points = rec.points
+        if len(points) != 1:
             raise FormatError('TEXT should contain 1 point')
+        self._point = points[0]
 
         rec = next(recs)
         rec.check_tag(GDSII.STRING)
@@ -461,8 +477,8 @@ class TextElement(ElementWithLayer):
         return self._angle
 
     @property
-    def points(self):
-        return self._points
+    def point(self):
+        return self._point
 
     @property
     def string(self):
@@ -524,9 +540,12 @@ class BoxElement(ElementWithLayer):
 
         rec = next(recs)
         rec.check_tag(GDSII.XY)
-        self._points = rec.points
-        if len(self._points) != 5:
+        points = rec.points
+        if len(points) != 5:
             raise FormatError('BOX should contain 5 points')
+        if points[0] != points[-1]:
+            raise FormatError('BOX should be closed')
+        self._points = points[:-1]
 
         self._read_rest(recs)
     
