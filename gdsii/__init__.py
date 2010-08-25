@@ -454,7 +454,7 @@ class RecordData(object):
             >>> rec.check_tag(GDSII.DATATYPE)
             Traceback (most recent call last):
                 ...
-            MissingRecord: 1542
+            MissingRecord: Wanted: 3586, got: STRNAME
         """
         if self._tag != tag:
             raise MissingRecord('Wanted: %s, got: %s'%(tag, self.tag_name))
