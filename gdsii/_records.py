@@ -1,4 +1,5 @@
-import GDSII
+from __future__ import absolute_import
+from . import GDSII
 
 class AbstractRecord(object):
     def __init__(self, variable, doc):

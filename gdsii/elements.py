@@ -22,6 +22,7 @@
         | :const:`TEXT`     | :class:`TextElement`     |
         +-------------------+--------------------------+
 """
+from __future__ import absolute_import
 from . import GDSII, FormatError
 from ._records import (elflags, plex, layer, data_type, path_type, width, bgn_extn,
         end_extn, xy, struct_name, strans, colrow, text_type, presentation, string,

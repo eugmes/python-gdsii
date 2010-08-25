@@ -2,6 +2,7 @@
     GDSII library object-oriented interface
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
+from __future__ import absolute_import
 from . import GDSII, FormatError, _ignore_record
 from .structure import Structure
 from ._utils import BufferedGenerator

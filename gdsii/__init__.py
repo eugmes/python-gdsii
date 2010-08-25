@@ -12,6 +12,7 @@
 
         :class:`pygdsii.library.Library` for object-oriented interface to GDSII library.
 """
+from __future__ import absolute_import
 import struct
 import math
 from datetime import datetime

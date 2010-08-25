@@ -2,6 +2,7 @@
     GDSII structure interface
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 """
+from __future__ import absolute_import
 from . import GDSII, _ignore_record
 from .elements import ElementBase
 
