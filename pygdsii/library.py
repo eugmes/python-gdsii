@@ -4,12 +4,14 @@
 """
 from . import GDSII, FormatError, _ignore_record
 from .structure import Structure
+from ._utils import BufferedGenerator
 
 class Library(object):
     """GDSII library class."""
     __slots__ = ['_version', '_mod_time', '_acc_time', '_name', '_logical_unit', '_physical_unit', '_structures']
 
-    def __init__(self, recs):
+    def __init__(self, unbuf_recs):
+        recs = BufferedGenerator(unbuf_recs)
         self._structures = []
 
         rec = next(recs)
@@ -58,7 +60,7 @@ class Library(object):
         while True:
             rec = next(recs)
             if rec.tag == GDSII.BGNSTR:
-                self._structures.append(Structure(recs, rec))
+                self._structures.append(Structure(recs))
             elif rec.tag == GDSII.ENDLIB:
                 break
             else:

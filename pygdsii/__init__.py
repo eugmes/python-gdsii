@@ -457,7 +457,7 @@ class RecordData(object):
             MissingRecord: 1542
         """
         if self._tag != tag:
-            raise MissingRecord(self._tag)
+            raise MissingRecord('Wanted: %s, got: %s'%(tag, self.tag_name))
 
     def check_size(self, size):
         """

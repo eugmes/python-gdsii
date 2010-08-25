@@ -10,10 +10,10 @@ class Structure(object):
 
     __slots__ = ['_mod_time', '_acc_time', '_name', '_elements']
 
-    def __init__(self, recs, lastrec):
+    def __init__(self, recs):
         self._elements = []
 
-        self._mod_time, self._acc_time = lastrec.times
+        self._mod_time, self._acc_time = recs.current.times
 
         # STRNAME
         rec = next(recs)
@@ -25,7 +25,7 @@ class Structure(object):
 
         # read elements till ENDSTR
         while rec.tag != GDSII.ENDSTR:
-            self._elements.append(ElementBase.load(recs, rec))
+            self._elements.append(ElementBase.load(recs))
             rec = next(recs)
     
     @property
