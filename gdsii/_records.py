@@ -118,9 +118,9 @@ class STransPrroperty(OptionalFlagsRecord):
     angle = SimpleOptionalRecord('angle', GDSII.ANGLE, 'Rotation angle (real, optional).')
 
     def props(self):
-        res = dict(self.mag.props().items() +
-                self.angle.props().items() +
-                OptionalFlagsRecord.props(self).items())
+        res = dict(list(self.mag.props().items()) +
+                list(self.angle.props().items()) +
+                list(OptionalFlagsRecord.props(self).items()))
         return res
 
     def read(self, instance, gen):

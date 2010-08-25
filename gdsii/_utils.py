@@ -12,3 +12,5 @@ class BufferedGenerator(object):
     def next(self):
         self._current = next(self._generator)
         return self._current
+
+    __next__ = next
