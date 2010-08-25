@@ -1,9 +1,25 @@
+# -*- coding: utf-8 -*-
+#
+#   Copyright © 2010 Eugeniy Meshcheryakov <eugen@debian.org>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
     GDSII library object-oriented interface
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import GDSII, FormatError, _ignore_record
+from . import GDSII, FormatError, _ignore_record, RecordData
 from .structure import Structure
 from ._utils import BufferedGenerator
 
@@ -66,6 +82,23 @@ class Library(object):
                 break
             else:
                 raise FormatError('unexpected tag where BGNSTR or ENDLIB are expected')
+
+    def save(self, stream):
+        RecordData(GDSII.HEADER, (self._version,)).save(stream)
+        RecordData(GDSII.BGNLIB, times=(self._mod_time, self._acc_time)).save(stream)
+        # ignore GDSII.LIBDIRSIZE
+        # ignore GDSII.SRFNAME
+        # ignore GDSII.LIBSECUR
+        RecordData(GDSII.LIBNAME, self._name).save(stream)
+        # ignore GDSII.REFLIBS
+        # ignore GDSII.FONTS
+        # ignore GDSII.ATTRTABLE
+        # ignore GDSII.GENERATIONS
+        # FORMAT and following MASK+ ENDMASKS
+        RecordData(GDSII.UNITS, (self._logical_unit, self._physical_unit)).save(stream)
+        for struc in self._structures:
+            struc.save(stream)
+        RecordData(GDSII.ENDLIB).save(stream)
 
     @property
     def version(self):

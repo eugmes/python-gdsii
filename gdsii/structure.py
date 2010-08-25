@@ -1,9 +1,25 @@
+# -*- coding: utf-8 -*-
+#
+#   Copyright © 2010 Eugeniy Meshcheryakov <eugen@debian.org>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
     GDSII structure interface
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import GDSII, _ignore_record
+from . import GDSII, _ignore_record, RecordData
 from .elements import ElementBase
 
 class Structure(object):
@@ -25,10 +41,17 @@ class Structure(object):
         rec = _ignore_record(recs, next(recs), GDSII.STRCLASS)
 
         # read elements till ENDSTR
-        while rec.tag != GDSII.ENDSTR:
+        while recs.current.tag != GDSII.ENDSTR:
             self._elements.append(ElementBase.load(recs))
-            rec = next(recs)
     
+    def save(self, stream):
+        RecordData(GDSII.BGNSTR, times=(self._mod_time, self._acc_time)).save(stream)
+        RecordData(GDSII.STRNAME, self._name).save(stream)
+        # ignore GDSII.STRCLASS
+        for elem in self._elements:
+            elem.save(stream)
+        RecordData(GDSII.ENDSTR).save(stream)
+
     @property
     def mod_time(self):
         """Last modification time (datetime)."""

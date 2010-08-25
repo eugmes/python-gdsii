@@ -1,5 +1,21 @@
+# -*- coding: utf-8 -*-
+#
+#   Copyright © 2010 Eugeniy Meshcheryakov <eugen@debian.org>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
-from . import GDSII
+from . import GDSII, RecordData
 
 class AbstractRecord(object):
     def __init__(self, variable, doc):
@@ -25,6 +41,9 @@ class AbstractRecord(object):
     def read(self, instance, gen):
         raise NotImplementedError
 
+    def save(self, instance, stream):
+        raise NotImplementedError
+
     def __repr__(self):
         return '<property: %s>'%self.variable
 
@@ -40,6 +59,9 @@ class SimpleRecord(AbstractRecord):
         setattr(instance, self.priv_variable, rec.data[0])
         next(gen)
 
+    def save(self, instance, stream):
+        RecordData(self.gds_record, (getattr(instance, self.priv_variable),)).save(stream)
+
 class SimpleOptionalRecord(SimpleRecord):
     def read(self, instance, gen):
         rec = gen.current
@@ -48,12 +70,28 @@ class SimpleOptionalRecord(SimpleRecord):
             setattr(instance, self.priv_variable, rec.data[0])
             next(gen)
 
+    def save(self, instance, stream):
+        try:
+            data = getattr(instance, self.priv_variable)
+        except AttributeError:
+            data = None
+        if data is not None:
+            RecordData(self.gds_record, (data,)).save(stream)
+
 class OptionalFlagsRecord(SimpleRecord):
     def read(self, instance, gen):
         rec = gen.current
         if rec.tag == self.gds_record:
             setattr(instance, self.priv_variable, rec.data)
             next(gen)
+
+    def save(self, instance, stream):
+        try:
+            data = getattr(instance, self.priv_variable)
+        except AttributeError:
+            data = None
+        if data is not None:
+            RecordData(self.gds_record, data).save(stream)
 
 class PropertiesRecord(AbstractRecord):
     def read(self, instance, gen):
@@ -63,10 +101,16 @@ class PropertiesRecord(AbstractRecord):
             rec.check_size(1)
             propattr = rec.data[0]
             rec = next(gen)
-            rec.check_tag(self.gds_record)
+            rec.check_tag(GDSII.PROPVALUE)
             props[propattr] = rec.data
             rec = next(gen)
         setattr(instance, self.priv_variable, props)
+
+    def save(self, instance, stream):
+        props = getattr(instance, self.priv_variable)
+        for (propattr, propvalue) in props.items():
+            RecordData(GDSII.PROPATTR, (propattr,)).save(stream)
+            RecordData(GDSII.PROPVALUE, propvalue).save(stream)
 
 class XYRecord(SimpleRecord):
     def read(self, instance, gen):
@@ -75,12 +119,19 @@ class XYRecord(SimpleRecord):
         setattr(instance, self.priv_variable, rec.points)
         next(gen)
 
+    def save(self, instance, stream):
+        pts = getattr(instance, self.priv_variable)
+        RecordData(self.gds_record, points=pts).save(stream)
+
 class StringRecord(SimpleRecord):
     def read(self, instance, gen):
         rec = gen.current
         rec.check_tag(self.gds_record)
         setattr(instance, self.priv_variable, rec.data)
         next(gen)
+
+    def save(self, instance, stream):
+        RecordData(self.gds_record, getattr(instance, self.priv_variable)).save(stream)
 
 class ColRowRecord(AbstractRecord):
     def __init__(self, variable1, variable2, doc1, doc2):
@@ -113,6 +164,11 @@ class ColRowRecord(AbstractRecord):
         setattr(instance, self.priv_variable2, rows)
         next(gen)
 
+    def save(self, instance, stream):
+        col = getattr(instance, self.priv_variable)
+        row = getattr(instance, self.priv_variable2)
+        RecordData(GDSII.COLROW, (col, row)).save(stream)
+
 class STransPrroperty(OptionalFlagsRecord):
     mag = SimpleOptionalRecord('mag', GDSII.MAG, 'Magnification (real, optional).')
     angle = SimpleOptionalRecord('angle', GDSII.ANGLE, 'Rotation angle (real, optional).')
@@ -130,6 +186,18 @@ class STransPrroperty(OptionalFlagsRecord):
             next(gen)
             self.mag.read(instance, gen)
             self.angle.read(instance, gen)
+
+    def save(self, instance, stream):
+        try:
+            data = getattr(instance, self.priv_variable)
+        except AttributeError:
+            data = None
+
+        if data is not None:
+            OptionalFlagsRecord.save(self, instance, stream)
+            self.mag.save(instance, stream)
+            self.angle.save(instance, stream)
+
 
 elflags = OptionalFlagsRecord('elflags', GDSII.ELFLAGS, 'Element flags (bitfield).')
 plex = SimpleOptionalRecord('plex', GDSII.PLEX, 'Plex (integer).')

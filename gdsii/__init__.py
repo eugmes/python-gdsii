@@ -1,4 +1,19 @@
 # -*- coding: utf-8 -*-
+#
+#   Copyright © 2010 Eugeniy Meshcheryakov <eugen@debian.org>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
     pygdsii - GDSII manipulation library
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -428,22 +443,22 @@ class RecordData(object):
         elif times is not None:
             mod_time = times[0]
             acc_time = times[1]
-            return [
+            self._data = (
                 mod_time.year - 1900,
                 mod_time.month,
                 mod_time.day,
                 mod_time.hour,
                 mod_time.minute,
-                mod_time.secunde,
+                mod_time.second,
                 acc_time.year - 1900,
                 acc_time.month,
                 acc_time.day,
                 acc_time.hour,
                 acc_time.minute,
-                acc_time.secunde,
-            ]
+                acc_time.second
+            )
         else:
-            raise TypeError('at least one optional argument is required')
+            self._data = None
 
     def check_tag(self, tag):
         """
