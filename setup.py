@@ -8,6 +8,7 @@ setup(
     author_email = 'eugen@debian.org',
     url = 'http://www.gitorious.org/python-gdsii',
     packages = ['gdsii'],
+    scripts = ['scripts/gds2txt'],
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
