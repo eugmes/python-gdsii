@@ -30,7 +30,7 @@ class AbstractRecord(object):
 
     def setter(self):
         def f(obj, value):
-            setattr(obj, self.priv_variable)
+            setattr(obj, self.priv_variable, value)
         return f
 
     def props(self):
@@ -147,7 +147,7 @@ class ColRowRecord(AbstractRecord):
 
     def setter2(self):
         def f(obj, value):
-            setattr(obj, self.priv_variable2)
+            setattr(obj, self.priv_variable2, value)
         return f
 
     def props(self):
