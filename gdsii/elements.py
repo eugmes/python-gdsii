@@ -143,4 +143,4 @@ class BoxElement(ElementBase):
 
 _all_elements = (BoundaryElement, PathElement, SRefElement, ARefElement, TextElement, NodeElement, BoxElement)
 
-ElementBase._tag_to_class_map = dict(((cls._gds_tag, cls) for cls in _all_elements))
+ElementBase._tag_to_class_map = (lambda: dict(((cls._gds_tag, cls) for cls in _all_elements)))()
