@@ -197,3 +197,20 @@ class STransRecord(OptionalFlagsRecord):
             OptionalFlagsRecord.save(self, instance, stream)
             self.mag.save(instance, stream)
             self.angle.save(instance, stream)
+
+def stream_class(cls):
+    """
+    Decorator for classes that can be read and written to a GDSII stream.
+
+    Sets up GDSII properties and ``__slots__``. Class should have ``_gds_objs``
+    variable containing tuple with instances of :class:`AbstractRecord`.
+
+    Warning: replaces __slots__ instead of appending to it.
+    """
+    slots = []
+    for obj in cls._gds_objs:
+        for (propname, prop) in obj.props().items():
+            setattr(cls, propname, prop)
+            slots.append('_'+propname)
+    cls.__slots__ = slots
+    return cls

@@ -39,7 +39,7 @@
         +-------------------+-------------------+
 """
 from __future__ import absolute_import
-from . import tags, FormatError, RecordData
+from . import tags, FormatError, RecordData, _records
 from ._records import (SimpleRecord, SimpleOptionalRecord, OptionalFlagsRecord,
         PropertiesRecord, XYRecord, StringRecord, ColRowRecord, STransRecord)
 
@@ -119,52 +119,43 @@ class ElementBase(object):
             obj.save(self, stream)
         RecordData(tags.ENDEL).save(stream)
 
-def element_decorator(cls):
-    slots = []
-    for obj in cls._gds_objs:
-        for (propname, prop) in obj.props().items():
-            setattr(cls, propname, prop)
-            slots.append('_'+propname)
-    cls.__slots__ = slots # FIXME
-    return cls
-
-@element_decorator
+@_records.stream_class
 class Boundary(ElementBase):
     """Class for :const:`BOUNDARY` GDSII element."""
     _gds_tag = tags.BOUNDARY
     _gds_objs = (elflags, plex, layer, data_type, xy, properties)
 
-@element_decorator
+@_records.stream_class
 class Path(ElementBase):
     """Class for :const:`PATH` GDSII element."""
     _gds_tag = tags.PATH
     _gds_objs = (elflags, plex, layer, data_type, path_type, width, bgn_extn, end_extn, xy, properties)
 
-@element_decorator
+@_records.stream_class
 class SRef(ElementBase):
     """Class for :const:`SREF` GDSII element."""
     _gds_tag = tags.SREF
     _gds_objs = (elflags, plex, struct_name, strans, xy, properties)
 
-@element_decorator
+@_records.stream_class
 class ARef(ElementBase):
     """Class for :const:`AREF` GDSII element."""
     _gds_tag = tags.AREF
     _gds_objs = (elflags, plex, struct_name, strans, colrow, xy, properties)
 
-@element_decorator
+@_records.stream_class
 class Text(ElementBase):
     """Class for :const:`TEXT` GDSII element."""
     _gds_tag = tags.TEXT
     _gds_objs = (elflags, plex, layer, text_type, presentation, path_type, width, strans, xy, string, properties)
 
-@element_decorator
+@_records.stream_class
 class Node(ElementBase):
     """Class for :const:`NODE` GDSII element."""
     _gds_tag = tags.NODE
     _gds_objs = (elflags, plex, layer, node_type, xy)
 
-@element_decorator
+@_records.stream_class
 class Box(ElementBase):
     """Class for :const:`BOX` GDSII element."""
     _gds_tag = tags.BOX
