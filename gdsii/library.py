@@ -19,16 +19,15 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, FormatError, _ignore_record, RecordData
+from . import tags, _utils, FormatError, _ignore_record, RecordData
 from .structure import Structure
-from ._utils import BufferedGenerator
 
 class Library(object):
     """GDSII library class."""
     __slots__ = ['_version', '_mod_time', '_acc_time', '_name', '_logical_unit', '_physical_unit', '_structures']
 
     def __init__(self, unbuf_recs):
-        recs = BufferedGenerator(unbuf_recs)
+        recs = _utils.BufferedIterator(unbuf_recs)
         self._structures = []
 
         rec = next(recs)
