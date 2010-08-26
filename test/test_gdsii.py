@@ -35,7 +35,7 @@ class TestReal8(unittest.TestCase):
     def test_parse(self):
         packed_data = struct.pack('>{0}Q'.format(len(self.data)), *self.data.keys())
         unpacked = _parse_real8(packed_data)
-        expected_results = self.data.values()
+        expected_results = list(self.data.values())
         self.assertEqual(len(unpacked), len(expected_results))
         for i in range(len(unpacked)):
             self.assertAlmostEqual(unpacked[i], expected_results[i])
@@ -43,7 +43,7 @@ class TestReal8(unittest.TestCase):
     def test_pack(self):
         packed_data = _pack_real8(self.data.values())
         unpacked = _parse_real8(packed_data)
-        expected_results = self.data.values()
+        expected_results = list(self.data.values())
         self.assertEqual(len(unpacked), len(expected_results))
         for i in range(len(unpacked)):
             self.assertAlmostEqual(unpacked[i], expected_results[i])
@@ -60,3 +60,6 @@ def load_tests(loader, tests, pattern):
         tests = loader.loadTestsFromTestCase(test_class)
         suite.addTests(tests)
     return suite
+
+if __name__ == '__main__':
+    unittest.main()
