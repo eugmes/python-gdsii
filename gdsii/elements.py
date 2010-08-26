@@ -39,7 +39,7 @@
         +-------------------+-------------------+
 """
 from __future__ import absolute_import
-from . import GDSII, FormatError, RecordData
+from . import tags, FormatError, RecordData
 from ._records import (elflags, plex, layer, data_type, path_type, width, bgn_extn,
         end_extn, xy, struct_name, strans, colrow, text_type, presentation, string,
         node_type, box_type, properties)
@@ -80,7 +80,7 @@ class ElementBase(object):
         next(recs)
         for obj in self._gds_objs:
             obj.read(self, recs)
-        recs.current.check_tag(GDSII.ENDEL)
+        recs.current.check_tag(tags.ENDEL)
         next(recs)
         return self
 
@@ -88,7 +88,7 @@ class ElementBase(object):
         RecordData(self._gds_tag).save(stream)
         for obj in self._gds_objs:
             obj.save(self, stream)
-        RecordData(GDSII.ENDEL).save(stream)
+        RecordData(tags.ENDEL).save(stream)
 
 def element_decorator(cls):
     slots = []
@@ -102,43 +102,43 @@ def element_decorator(cls):
 @element_decorator
 class Boundary(ElementBase):
     """Class for :const:`BOUNDARY` GDSII element."""
-    _gds_tag = GDSII.BOUNDARY
+    _gds_tag = tags.BOUNDARY
     _gds_objs = (elflags, plex, layer, data_type, xy, properties)
 
 @element_decorator
 class Path(ElementBase):
     """Class for :const:`PATH` GDSII element."""
-    _gds_tag = GDSII.PATH
+    _gds_tag = tags.PATH
     _gds_objs = (elflags, plex, layer, data_type, path_type, width, bgn_extn, end_extn, xy, properties)
 
 @element_decorator
 class SRef(ElementBase):
     """Class for :const:`SREF` GDSII element."""
-    _gds_tag = GDSII.SREF
+    _gds_tag = tags.SREF
     _gds_objs = (elflags, plex, struct_name, strans, xy, properties)
 
 @element_decorator
 class ARef(ElementBase):
     """Class for :const:`AREF` GDSII element."""
-    _gds_tag = GDSII.AREF
+    _gds_tag = tags.AREF
     _gds_objs = (elflags, plex, struct_name, strans, colrow, xy, properties)
 
 @element_decorator
 class Text(ElementBase):
     """Class for :const:`TEXT` GDSII element."""
-    _gds_tag = GDSII.TEXT
+    _gds_tag = tags.TEXT
     _gds_objs = (elflags, plex, layer, text_type, presentation, path_type, width, strans, xy, string, properties)
 
 @element_decorator
 class Node(ElementBase):
     """Class for :const:`NODE` GDSII element."""
-    _gds_tag = GDSII.NODE
+    _gds_tag = tags.NODE
     _gds_objs = (elflags, plex, layer, node_type, xy)
 
 @element_decorator
 class Box(ElementBase):
     """Class for :const:`BOX` GDSII element."""
-    _gds_tag = GDSII.BOX
+    _gds_tag = tags.BOX
     _gds_objs = (elflags, plex, layer, box_type, xy, properties)
 
 _all_elements = (Boundary, Path, SRef, ARef, Text, Node, Box)

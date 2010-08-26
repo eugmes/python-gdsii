@@ -31,7 +31,7 @@ from __future__ import absolute_import
 import struct
 import math
 from datetime import datetime
-from . import GDSII, GDSIIType
+from . import tags, GDSIIType
 
 __all__ = [
     'FormatError',
@@ -66,7 +66,7 @@ class DataSizeError(FormatError):
 # lambda because otherwise k and v are module variables
 # PYTHON3: can be simplified
 _TAG_TO_NAME_MAP = (lambda:
-    dict([(GDSII.__dict__[key], key) for key in dir(GDSII) if key[0] != '_'])
+    dict([(tags.__dict__[key], key) for key in dir(tags) if key[0] != '_'])
 )()
 
 _TYPE_TO_NAME_MAP = (lambda:
@@ -83,9 +83,9 @@ def type_of_tag(tag):
 
     Examples:
 
-        >>> type_of_tag(GDSII.HEADER)
+        >>> type_of_tag(tags.HEADER)
         2
-        >>> type_of_tag(GDSII.MASK)
+        >>> type_of_tag(tags.MASK)
         6
 
     """
@@ -408,7 +408,7 @@ class RecordData(object):
     Class for representing a GDSII record with attached data.
     Example::
 
-        >>> r = RecordData(GDSII.STRNAME, 'my_structure')
+        >>> r = RecordData(tags.STRNAME, 'my_structure')
         >>> '%04x' % r.tag
         '0606'
         >>> r.tag_name
@@ -465,9 +465,9 @@ class RecordData(object):
         Checks if current record has the same tag as the given one.
         Raises :exc:`MissingRecord` exception otherwise. For example::
 
-            >>> rec = RecordData(GDSII.STRNAME, b'struct')
-            >>> rec.check_tag(GDSII.STRNAME)
-            >>> rec.check_tag(GDSII.DATATYPE)
+            >>> rec = RecordData(tags.STRNAME, b'struct')
+            >>> rec.check_tag(tags.STRNAME)
+            >>> rec.check_tag(tags.DATATYPE)
             Traceback (most recent call last):
                 ...
             MissingRecord: Wanted: 3586, got: STRNAME
@@ -480,7 +480,7 @@ class RecordData(object):
         Checks if data size equals to the given size.
         Raises :exc:`DataSizeError` otherwise. For example::
 
-            >>> rec = RecordData(GDSII.DATATYPE, (0,))
+            >>> rec = RecordData(tags.DATATYPE, (0,))
             >>> rec.check_size(1)
             >>> rec.check_size(5)
             Traceback (most recent call last):
@@ -567,15 +567,15 @@ class RecordData(object):
         Raises :exc:`DataSizeError` if data size is incorrect.
         For example::
 
-            >>> r = RecordData(GDSII.XY, [0, 1, 2, 3])
+            >>> r = RecordData(tags.XY, [0, 1, 2, 3])
             >>> r.points
             [(0, 1), (2, 3)]
-            >>> r = RecordData(GDSII.XY, []) # not allowed
+            >>> r = RecordData(tags.XY, []) # not allowed
             >>> r.points
             Traceback (most recent call last):
                 ...
             DataSizeError: 4099
-            >>> r = RecordData(GDSII.XY, [1, 2, 3]) # odd number of coordinates
+            >>> r = RecordData(tags.XY, [1, 2, 3]) # odd number of coordinates
             >>> r.points
             Traceback (most recent call last):
                 ...
@@ -592,12 +592,12 @@ class RecordData(object):
         Convert data to tuple ``(modification time, access time)``.
         Useful for :const:`BGNLIB` and :const:`BGNSTR`.
 
-            >>> r = RecordData(GDSII.BGNLIB, [100, 1, 1, 1, 2, 3, 110, 8, 14, 21, 10, 35])
+            >>> r = RecordData(tags.BGNLIB, [100, 1, 1, 1, 2, 3, 110, 8, 14, 21, 10, 35])
             >>> print(r.times[0].isoformat())
             2000-01-01T01:02:03
             >>> print(r.times[1].isoformat())
             2010-08-14T21:10:35
-            >>> r = RecordData(GDSII.BGNLIB, [100, 1, 1, 1, 2, 3]) # wrong data length
+            >>> r = RecordData(tags.BGNLIB, [100, 1, 1, 1, 2, 3]) # wrong data length
             >>> r.times
             Traceback (most recent call last):
                 ...
@@ -618,7 +618,7 @@ def all_records(stream):
     last = False
     while not last:
         rec = RecordData.read(stream)
-        if rec.tag == GDSII.ENDLIB:
+        if rec.tag == tags.ENDLIB:
             last = True
         yield rec
 

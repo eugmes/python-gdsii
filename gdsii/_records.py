@@ -15,7 +15,7 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
-from . import GDSII, RecordData
+from . import tags, RecordData
 
 class AbstractRecord(object):
     def __init__(self, variable, doc):
@@ -97,11 +97,11 @@ class PropertiesRecord(AbstractRecord):
     def read(self, instance, gen):
         rec = gen.current
         props = []
-        while rec.tag == GDSII.PROPATTR:
+        while rec.tag == tags.PROPATTR:
             rec.check_size(1)
             propattr = rec.data[0]
             rec = next(gen)
-            rec.check_tag(GDSII.PROPVALUE)
+            rec.check_tag(tags.PROPVALUE)
             props.append((propattr, rec.data))
             rec = next(gen)
         setattr(instance, self.priv_variable, props)
@@ -109,8 +109,8 @@ class PropertiesRecord(AbstractRecord):
     def save(self, instance, stream):
         props = getattr(instance, self.priv_variable)
         for (propattr, propvalue) in props:
-            RecordData(GDSII.PROPATTR, (propattr,)).save(stream)
-            RecordData(GDSII.PROPVALUE, propvalue).save(stream)
+            RecordData(tags.PROPATTR, (propattr,)).save(stream)
+            RecordData(tags.PROPVALUE, propvalue).save(stream)
 
 class XYRecord(SimpleRecord):
     def read(self, instance, gen):
@@ -157,7 +157,7 @@ class ColRowRecord(AbstractRecord):
 
     def read(self, instance, gen):
         rec = gen.current
-        rec.check_tag(GDSII.COLROW)
+        rec.check_tag(tags.COLROW)
         rec.check_size(2)
         cols, rows = rec.data
         setattr(instance, self.priv_variable, cols)
@@ -167,11 +167,11 @@ class ColRowRecord(AbstractRecord):
     def save(self, instance, stream):
         col = getattr(instance, self.priv_variable)
         row = getattr(instance, self.priv_variable2)
-        RecordData(GDSII.COLROW, (col, row)).save(stream)
+        RecordData(tags.COLROW, (col, row)).save(stream)
 
 class STransPrroperty(OptionalFlagsRecord):
-    mag = SimpleOptionalRecord('mag', GDSII.MAG, 'Magnification (real, optional).')
-    angle = SimpleOptionalRecord('angle', GDSII.ANGLE, 'Rotation angle (real, optional).')
+    mag = SimpleOptionalRecord('mag', tags.MAG, 'Magnification (real, optional).')
+    angle = SimpleOptionalRecord('angle', tags.ANGLE, 'Rotation angle (real, optional).')
 
     def props(self):
         res = dict(list(self.mag.props().items()) +
@@ -199,20 +199,20 @@ class STransPrroperty(OptionalFlagsRecord):
             self.angle.save(instance, stream)
 
 
-elflags = OptionalFlagsRecord('elflags', GDSII.ELFLAGS, 'Element flags (bitfield).')
-plex = SimpleOptionalRecord('plex', GDSII.PLEX, 'Plex (integer).')
-layer = SimpleRecord('layer', GDSII.LAYER, 'Layer (integer).')
-data_type = SimpleRecord('data_type', GDSII.DATATYPE, 'Data type (integer).')
-path_type = SimpleOptionalRecord('path_type', GDSII.PATHTYPE, 'Path type (integer).')
-width = SimpleOptionalRecord('width', GDSII.WIDTH, 'Width of the path (integer).')
-bgn_extn = SimpleOptionalRecord('bgn_extn', GDSII.BGNEXTN, 'Beginning extension for path type 4 (integer, optional).')
-end_extn = SimpleOptionalRecord('end_extn', GDSII.ENDEXTN, 'End extension for path type 4 (integer, optional).')
-xy = XYRecord('xy', GDSII.XY, 'Points.')
-struct_name = StringRecord('struct_name', GDSII.SNAME, 'Name of a referenced structure (byte array).')
-strans = STransPrroperty('strans', GDSII.STRANS, 'Transformation flags.')
+elflags = OptionalFlagsRecord('elflags', tags.ELFLAGS, 'Element flags (bitfield).')
+plex = SimpleOptionalRecord('plex', tags.PLEX, 'Plex (integer).')
+layer = SimpleRecord('layer', tags.LAYER, 'Layer (integer).')
+data_type = SimpleRecord('data_type', tags.DATATYPE, 'Data type (integer).')
+path_type = SimpleOptionalRecord('path_type', tags.PATHTYPE, 'Path type (integer).')
+width = SimpleOptionalRecord('width', tags.WIDTH, 'Width of the path (integer).')
+bgn_extn = SimpleOptionalRecord('bgn_extn', tags.BGNEXTN, 'Beginning extension for path type 4 (integer, optional).')
+end_extn = SimpleOptionalRecord('end_extn', tags.ENDEXTN, 'End extension for path type 4 (integer, optional).')
+xy = XYRecord('xy', tags.XY, 'Points.')
+struct_name = StringRecord('struct_name', tags.SNAME, 'Name of a referenced structure (byte array).')
+strans = STransPrroperty('strans', tags.STRANS, 'Transformation flags.')
 colrow = ColRowRecord('cols', 'rows', 'Number of columns (integer).', 'Number of rows (integer).')
-text_type = SimpleRecord('text_type', GDSII.TEXTTYPE, 'Text type (integer).')
-presentation = OptionalFlagsRecord('presentation', GDSII.PRESENTATION,"""
+text_type = SimpleRecord('text_type', tags.TEXTTYPE, 'Text type (integer).')
+presentation = OptionalFlagsRecord('presentation', tags.PRESENTATION,"""
     Bit array that specifies how the text is presented (optional).
     Meaning of bits:
 
@@ -220,9 +220,9 @@ presentation = OptionalFlagsRecord('presentation', GDSII.PRESENTATION,"""
     * Bits 12 and 13 specify vertical justification (0 - top, 1 - middle, 2 - bottom).
     * Bits 14 and 15 specify horizontal justification (0 - left, 1 - center, 2 - rigth).
 """)
-string = StringRecord('string', GDSII.STRING, 'A string as bytes array.')
-node_type = SimpleRecord('node_type', GDSII.NODETYPE, 'Node type (integer).')
-box_type = SimpleRecord('box_type', GDSII.BOXTYPE, 'Box type (integer).')
+string = StringRecord('string', tags.STRING, 'A string as bytes array.')
+node_type = SimpleRecord('node_type', tags.NODETYPE, 'Node type (integer).')
+box_type = SimpleRecord('box_type', tags.BOXTYPE, 'Box type (integer).')
 properties = PropertiesRecord('properties', """ 
     List containing properties of an element.
     Properties are represented as tuples (propattr, propvalue).

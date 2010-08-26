@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import GDSII, _ignore_record, RecordData
+from . import tags, _ignore_record, RecordData
 from .elements import ElementBase
 
 class Structure(object):
@@ -34,23 +34,23 @@ class Structure(object):
 
         # STRNAME
         rec = next(recs)
-        rec.check_tag(GDSII.STRNAME)
+        rec.check_tag(tags.STRNAME)
         self._name = rec.data
 
         # ignore STRCLASS
-        rec = _ignore_record(recs, next(recs), GDSII.STRCLASS)
+        rec = _ignore_record(recs, next(recs), tags.STRCLASS)
 
         # read elements till ENDSTR
-        while recs.current.tag != GDSII.ENDSTR:
+        while recs.current.tag != tags.ENDSTR:
             self._elements.append(ElementBase.load(recs))
-    
+
     def save(self, stream):
-        RecordData(GDSII.BGNSTR, times=(self._mod_time, self._acc_time)).save(stream)
-        RecordData(GDSII.STRNAME, self._name).save(stream)
-        # ignore GDSII.STRCLASS
+        RecordData(tags.BGNSTR, times=(self._mod_time, self._acc_time)).save(stream)
+        RecordData(tags.STRNAME, self._name).save(stream)
+        # ignore STRCLASS
         for elem in self._elements:
             elem.save(stream)
-        RecordData(GDSII.ENDSTR).save(stream)
+        RecordData(tags.ENDSTR).save(stream)
 
     @property
     def mod_time(self):

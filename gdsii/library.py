@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import GDSII, FormatError, _ignore_record, RecordData
+from . import tags, FormatError, _ignore_record, RecordData
 from .structure import Structure
 from ._utils import BufferedGenerator
 
@@ -33,72 +33,72 @@ class Library(object):
 
         rec = next(recs)
         # HEADER
-        rec.check_tag(GDSII.HEADER)
+        rec.check_tag(tags.HEADER)
         rec.check_size(1)
         self._version = rec.data[0]
 
         # BGNLIB
         rec = next(recs)
-        rec.check_tag(GDSII.BGNLIB)
+        rec.check_tag(tags.BGNLIB)
         self._mod_time, self._acc_time = rec.times
 
         # ignore posssible LIBDIRSIZE, SRFNAME, LIBSECUR
-        rec = _ignore_record(recs, next(recs), GDSII.LIBDIRSIZE)
-        rec = _ignore_record(recs, rec, GDSII.SRFNAME)
-        rec = _ignore_record(recs, rec, GDSII.LIBSECUR)
+        rec = _ignore_record(recs, next(recs), tags.LIBDIRSIZE)
+        rec = _ignore_record(recs, rec, tags.SRFNAME)
+        rec = _ignore_record(recs, rec, tags.LIBSECUR)
 
         # LIBNAME
-        rec.check_tag(GDSII.LIBNAME)
+        rec.check_tag(tags.LIBNAME)
         self._name = rec.data
 
         # ignore posssible REFLIBS, FONTS, ATTRTABLE, GENERATIONS
-        rec = _ignore_record(recs, next(recs), GDSII.REFLIBS)
-        rec = _ignore_record(recs, rec, GDSII.FONTS)
-        rec = _ignore_record(recs, rec, GDSII.ATTRTABLE)
-        rec = _ignore_record(recs, rec, GDSII.GENERATIONS)
+        rec = _ignore_record(recs, next(recs), tags.REFLIBS)
+        rec = _ignore_record(recs, rec, tags.FONTS)
+        rec = _ignore_record(recs, rec, tags.ATTRTABLE)
+        rec = _ignore_record(recs, rec, tags.GENERATIONS)
 
         # ignore FORMAT and following MASK+ ENDMASKS
-        if rec.tag == GDSII.FORMAT:
+        if rec.tag == tags.FORMAT:
             rec = next(recs)
-            if rec.tag == GDSII.MASK:
+            if rec.tag == tags.MASK:
                 while True:
                     rec = next(recs)
-                    if rec.tag == GDSII.ENDMASKS:
+                    if rec.tag == tags.ENDMASKS:
                         rec = next(recs)
                         break
-                    rec.check_tag(GDSII.MASK)
+                    rec.check_tag(tags.MASK)
 
         # UNITS
-        rec.check_tag(GDSII.UNITS)
+        rec.check_tag(tags.UNITS)
         rec.check_size(2)
         self._logical_unit, self._physical_unit = rec.data
 
         # read structures starting with BGNSTR or ENDLIB
         while True:
             rec = next(recs)
-            if rec.tag == GDSII.BGNSTR:
+            if rec.tag == tags.BGNSTR:
                 self._structures.append(Structure(recs))
-            elif rec.tag == GDSII.ENDLIB:
+            elif rec.tag == tags.ENDLIB:
                 break
             else:
                 raise FormatError('unexpected tag where BGNSTR or ENDLIB are expected')
 
     def save(self, stream):
-        RecordData(GDSII.HEADER, (self._version,)).save(stream)
-        RecordData(GDSII.BGNLIB, times=(self._mod_time, self._acc_time)).save(stream)
-        # ignore GDSII.LIBDIRSIZE
-        # ignore GDSII.SRFNAME
-        # ignore GDSII.LIBSECUR
-        RecordData(GDSII.LIBNAME, self._name).save(stream)
-        # ignore GDSII.REFLIBS
-        # ignore GDSII.FONTS
-        # ignore GDSII.ATTRTABLE
-        # ignore GDSII.GENERATIONS
+        RecordData(tags.HEADER, (self._version,)).save(stream)
+        RecordData(tags.BGNLIB, times=(self._mod_time, self._acc_time)).save(stream)
+        # ignore tags.LIBDIRSIZE
+        # ignore tags.SRFNAME
+        # ignore tags.LIBSECUR
+        RecordData(tags.LIBNAME, self._name).save(stream)
+        # ignore tags.REFLIBS
+        # ignore tags.FONTS
+        # ignore tags.ATTRTABLE
+        # ignore tags.GENERATIONS
         # FORMAT and following MASK+ ENDMASKS
-        RecordData(GDSII.UNITS, (self._logical_unit, self._physical_unit)).save(stream)
+        RecordData(tags.UNITS, (self._logical_unit, self._physical_unit)).save(stream)
         for struc in self._structures:
             struc.save(stream)
-        RecordData(GDSII.ENDLIB).save(stream)
+        RecordData(tags.ENDLIB).save(stream)
 
     @property
     def version(self):
