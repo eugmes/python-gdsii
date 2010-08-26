@@ -96,19 +96,19 @@ class OptionalFlagsRecord(SimpleRecord):
 class PropertiesRecord(AbstractRecord):
     def read(self, instance, gen):
         rec = gen.current
-        props = dict()
+        props = []
         while rec.tag == GDSII.PROPATTR:
             rec.check_size(1)
             propattr = rec.data[0]
             rec = next(gen)
             rec.check_tag(GDSII.PROPVALUE)
-            props[propattr] = rec.data
+            props.append((propattr, rec.data))
             rec = next(gen)
         setattr(instance, self.priv_variable, props)
 
     def save(self, instance, stream):
         props = getattr(instance, self.priv_variable)
-        for (propattr, propvalue) in props.items():
+        for (propattr, propvalue) in props:
             RecordData(GDSII.PROPATTR, (propattr,)).save(stream)
             RecordData(GDSII.PROPVALUE, propvalue).save(stream)
 
@@ -224,6 +224,7 @@ string = StringRecord('string', GDSII.STRING, 'A string as bytes array.')
 node_type = SimpleRecord('node_type', GDSII.NODETYPE, 'Node type (integer).')
 box_type = SimpleRecord('box_type', GDSII.BOXTYPE, 'Box type (integer).')
 properties = PropertiesRecord('properties', """ 
-    Dictionary containing properties of an element.
-    Keys should be integers. Values are byte strings.
+    List containing properties of an element.
+    Properties are represented as tuples (propattr, propvalue).
+    Type of propattr is int, propvalue is bytes.
 """)

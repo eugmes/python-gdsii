@@ -89,16 +89,17 @@ def xy_dumper(name):
         end_named_seq(dumper)
     return dump_fn
 
-def properties_dumper(name, tag):
+def properties_dumper(name):
     def dump_fn(dumper, obj):
         properties = getattr(obj, name)
         if (properties):
-            dumper.emit(events.ScalarEvent(None, tag, (True, False), name))
-            dumper.emit(events.MappingStartEvent(None, MAP, False))
-            for (prop, value) in properties.items():
+            start_named_seq(dumper, name)
+            for (prop, value) in properties:
+                dumper.emit(events.MappingStartEvent(None, MAP, True))
                 dumper.emit(events.ScalarEvent(None, INT, (True, False), str(prop)))
                 dumper.emit(events.ScalarEvent(None, STR, (True, False), value.decode()))
-            dumper.emit(events.MappingEndEvent())
+                dumper.emit(events.MappingEndEvent())
+            end_named_seq(dumper)
     return dump_fn
 
 def strans_dumper(name):
@@ -134,7 +135,7 @@ string = simple_string_dumper('string')
 node_type = simple_dumper('node_type', INT)
 box_type = simple_dumper('box_type', INT)
 xy = xy_dumper('xy')
-properties = properties_dumper('properties', SEQ)
+properties = properties_dumper('properties')
 
 DUMPERS = (
     (elements.Boundary, BOUNDARY, (elflags, plex, layer, data_type, xy, properties)),
