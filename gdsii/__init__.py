@@ -31,7 +31,7 @@ from __future__ import absolute_import
 import struct
 import math
 from datetime import datetime
-from . import tags, GDSIIType
+from . import tags, types
 
 __all__ = [
     'FormatError',
@@ -70,7 +70,7 @@ _TAG_TO_NAME_MAP = (lambda:
 )()
 
 _TYPE_TO_NAME_MAP = (lambda:
-    dict((GDSIIType.__dict__[key], key) for key in dir(GDSIIType) if key[0] != '_')
+    dict((types.__dict__[key], key) for key in dir(types) if key[0] != '_')
 )()
 
 def type_of_tag(tag):
@@ -253,12 +253,12 @@ def _parse_ascii(data):
     return data
 
 _PARSE_FUNCS = {
-    GDSIIType.NODATA: _parse_nodata,
-    GDSIIType.BITARRAY: _parse_bitarray,
-    GDSIIType.INT2: _parse_int2,
-    GDSIIType.INT4: _parse_int4,
-    GDSIIType.REAL8: _parse_real8,
-    GDSIIType.ASCII: _parse_ascii
+    types.NODATA: _parse_nodata,
+    types.BITARRAY: _parse_bitarray,
+    types.INT2: _parse_int2,
+    types.INT4: _parse_int4,
+    types.REAL8: _parse_real8,
+    types.ASCII: _parse_ascii
 }
 
 def _pack_nodata(data):
@@ -395,12 +395,12 @@ def _pack_ascii(data):
     return data
 
 _PACK_FUNCS = {
-    GDSIIType.NODATA: _pack_nodata,
-    GDSIIType.BITARRAY: _pack_bitarray,
-    GDSIIType.INT2: _pack_int2,
-    GDSIIType.INT4: _pack_int4,
-    GDSIIType.REAL8: _pack_real8,
-    GDSIIType.ASCII: _pack_ascii
+    types.NODATA: _pack_nodata,
+    types.BITARRAY: _pack_bitarray,
+    types.INT2: _pack_int2,
+    types.INT4: _pack_int4,
+    types.REAL8: _pack_real8,
+    types.ASCII: _pack_ascii
 }
 # TODO implement lazy parsing, maybe
 class RecordData(object):

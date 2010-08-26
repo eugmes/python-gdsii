@@ -1,21 +1,21 @@
 #! /usr/bin/python
 """Demonstration program for pygdsii basic reading function."""
 from __future__ import print_function
-from gdsii import GDSIIType, all_records
+from gdsii import types, all_records
 import sys
 
 def show_data(rec):
     """Shows data in a human-readable format."""
-    if rec.tag_type == GDSIIType.ASCII:
+    if rec.tag_type == types.ASCII:
         return '"%s"' % rec.data.decode() # TODO escape
-    elif rec.tag_type == GDSIIType.BITARRAY:
+    elif rec.tag_type == types.BITARRAY:
         return str(rec.data)
     return ', '.join('{0}'.format(i) for i in rec.data)
 
 def main(name):
     with open(name, 'rb') as a_file:
         for rec in all_records(a_file):
-            if rec.tag_type == GDSIIType.NODATA:
+            if rec.tag_type == types.NODATA:
                 print(rec.tag_name)
             else:
                 print('%s: %s' % (rec.tag_name, show_data(rec)))
