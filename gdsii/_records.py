@@ -37,7 +37,7 @@ class AbstractRecord(object):
         return {
                 self.variable: property(self.getter(), self.setter(), doc=self.doc)
         }
-    
+
     def read(self, instance, gen):
         raise NotImplementedError
 
@@ -223,7 +223,7 @@ presentation = OptionalFlagsRecord('presentation', tags.PRESENTATION,"""
 string = StringRecord('string', tags.STRING, 'A string as bytes array.')
 node_type = SimpleRecord('node_type', tags.NODETYPE, 'Node type (integer).')
 box_type = SimpleRecord('box_type', tags.BOXTYPE, 'Box type (integer).')
-properties = PropertiesRecord('properties', """ 
+properties = PropertiesRecord('properties', """
     List containing properties of an element.
     Properties are represented as tuples (propattr, propvalue).
     Type of propattr is int, propvalue is bytes.
