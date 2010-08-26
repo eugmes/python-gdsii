@@ -40,9 +40,8 @@
 """
 from __future__ import absolute_import
 from . import tags, FormatError, RecordData
-from ._records import (elflags, plex, layer, data_type, path_type, width, bgn_extn,
-        end_extn, xy, struct_name, strans, colrow, text_type, presentation, string,
-        node_type, box_type, properties)
+from ._records import (SimpleRecord, SimpleOptionalRecord, OptionalFlagsRecord,
+        PropertiesRecord, XYRecord, StringRecord, ColRowRecord, STransRecord)
 
 __all__ = (
     'Boundary',
@@ -53,6 +52,36 @@ __all__ = (
     'Node',
     'Box'
 )
+
+elflags = OptionalFlagsRecord('elflags', tags.ELFLAGS, 'Element flags (bitfield).')
+plex = SimpleOptionalRecord('plex', tags.PLEX, 'Plex (integer).')
+layer = SimpleRecord('layer', tags.LAYER, 'Layer (integer).')
+data_type = SimpleRecord('data_type', tags.DATATYPE, 'Data type (integer).')
+path_type = SimpleOptionalRecord('path_type', tags.PATHTYPE, 'Path type (integer).')
+width = SimpleOptionalRecord('width', tags.WIDTH, 'Width of the path (integer).')
+bgn_extn = SimpleOptionalRecord('bgn_extn', tags.BGNEXTN, 'Beginning extension for path type 4 (integer, optional).')
+end_extn = SimpleOptionalRecord('end_extn', tags.ENDEXTN, 'End extension for path type 4 (integer, optional).')
+xy = XYRecord('xy', tags.XY, 'Points.')
+struct_name = StringRecord('struct_name', tags.SNAME, 'Name of a referenced structure (byte array).')
+strans = STransRecord('strans', tags.STRANS, 'Transformation flags.')
+colrow = ColRowRecord('cols', 'rows', 'Number of columns (integer).', 'Number of rows (integer).')
+text_type = SimpleRecord('text_type', tags.TEXTTYPE, 'Text type (integer).')
+presentation = OptionalFlagsRecord('presentation', tags.PRESENTATION,
+""" Bit array that specifies how the text is presented (optional).
+    Meaning of bits:
+
+    * Bits 10 and 11 specify font number (0-3).
+    * Bits 12 and 13 specify vertical justification (0 - top, 1 - middle, 2 - bottom).
+    * Bits 14 and 15 specify horizontal justification (0 - left, 1 - center, 2 - rigth).
+""")
+string = StringRecord('string', tags.STRING, 'A string as bytes array.')
+node_type = SimpleRecord('node_type', tags.NODETYPE, 'Node type (integer).')
+box_type = SimpleRecord('box_type', tags.BOXTYPE, 'Box type (integer).')
+properties = PropertiesRecord('properties',
+""" List containing properties of an element.
+    Properties are represented as tuples (propattr, propvalue).
+    Type of propattr is int, propvalue is bytes.
+""")
 
 class ElementBase(object):
     """Base class for all GDSII elements."""
