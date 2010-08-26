@@ -22,21 +22,21 @@
     various GDSII elements. Mapping between GDSII elements and
     classes is given in the following table:
 
-        +-------------------+--------------------------+
-        | :const:`AREF`     | :class:`ARefElement`     |
-        +-------------------+--------------------------+
-        | :const:`BOUNDARY` | :class:`BoundaryElement` |
-        +-------------------+--------------------------+
-        | :const:`BOX`      | :class:`BoxElement`      |
-        +-------------------+--------------------------+
-        | :const:`NODE`     | :class:`NodeElement`     |
-        +-------------------+--------------------------+
-        | :const:`PATH`     | :class:`PathElement`     |
-        +-------------------+--------------------------+
-        | :const:`SREF`     | :class:`SRefElement`     |
-        +-------------------+--------------------------+
-        | :const:`TEXT`     | :class:`TextElement`     |
-        +-------------------+--------------------------+
+        +-------------------+-------------------+
+        | :const:`AREF`     | :class:`ARef`     |
+        +-------------------+-------------------+
+        | :const:`BOUNDARY` | :class:`Boundary` |
+        +-------------------+-------------------+
+        | :const:`BOX`      | :class:`Box`      |
+        +-------------------+-------------------+
+        | :const:`NODE`     | :class:`Node`     |
+        +-------------------+-------------------+
+        | :const:`PATH`     | :class:`Path`     |
+        +-------------------+-------------------+
+        | :const:`SREF`     | :class:`SRef`     |
+        +-------------------+-------------------+
+        | :const:`TEXT`     | :class:`Text`     |
+        +-------------------+-------------------+
 """
 from __future__ import absolute_import
 from . import GDSII, FormatError, RecordData
@@ -45,13 +45,13 @@ from ._records import (elflags, plex, layer, data_type, path_type, width, bgn_ex
         node_type, box_type, properties)
 
 __all__ = (
-    'BoundaryElement',
-    'PathElement',
-    'SRefElement',
-    'ARefElement',
-    'TextElement',
-    'NodeElement',
-    'BoxElement'
+    'Boundary',
+    'Path',
+    'SRef',
+    'ARef',
+    'Text',
+    'Node',
+    'Box'
 )
 
 class ElementBase(object):
@@ -100,47 +100,47 @@ def element_decorator(cls):
     return cls
 
 @element_decorator
-class BoundaryElement(ElementBase):
+class Boundary(ElementBase):
     """Class for :const:`BOUNDARY` GDSII element."""
     _gds_tag = GDSII.BOUNDARY
     _gds_objs = (elflags, plex, layer, data_type, xy, properties)
 
 @element_decorator
-class PathElement(ElementBase):
+class Path(ElementBase):
     """Class for :const:`PATH` GDSII element."""
     _gds_tag = GDSII.PATH
     _gds_objs = (elflags, plex, layer, data_type, path_type, width, bgn_extn, end_extn, xy, properties)
 
 @element_decorator
-class SRefElement(ElementBase):
+class SRef(ElementBase):
     """Class for :const:`SREF` GDSII element."""
     _gds_tag = GDSII.SREF
     _gds_objs = (elflags, plex, struct_name, strans, xy, properties)
 
 @element_decorator
-class ARefElement(ElementBase):
+class ARef(ElementBase):
     """Class for :const:`AREF` GDSII element."""
     _gds_tag = GDSII.AREF
     _gds_objs = (elflags, plex, struct_name, strans, colrow, xy, properties)
 
 @element_decorator
-class TextElement(ElementBase):
+class Text(ElementBase):
     """Class for :const:`TEXT` GDSII element."""
     _gds_tag = GDSII.TEXT
     _gds_objs = (elflags, plex, layer, text_type, presentation, path_type, width, strans, xy, string, properties)
 
 @element_decorator
-class NodeElement(ElementBase):
+class Node(ElementBase):
     """Class for :const:`NODE` GDSII element."""
     _gds_tag = GDSII.NODE
     _gds_objs = (elflags, plex, layer, node_type, xy)
 
 @element_decorator
-class BoxElement(ElementBase):
+class Box(ElementBase):
     """Class for :const:`BOX` GDSII element."""
     _gds_tag = GDSII.BOX
     _gds_objs = (elflags, plex, layer, box_type, xy, properties)
 
-_all_elements = (BoundaryElement, PathElement, SRefElement, ARefElement, TextElement, NodeElement, BoxElement)
+_all_elements = (Boundary, Path, SRef, ARef, Text, Node, Box)
 
 ElementBase._tag_to_class_map = (lambda: dict(((cls._gds_tag, cls) for cls in _all_elements)))()
