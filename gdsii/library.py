@@ -22,24 +22,24 @@ from __future__ import absolute_import
 from . import tags, _utils, _records, FormatError, _ignore_record, RecordData
 from .structure import Structure
 
-header = _records.SimpleRecord('version', tags.HEADER,
+_HEADER = _records.SimpleRecord('version', tags.HEADER,
 """ GDSII file verion.
 
     Integer number as found in a GDSII file. For example value is 5 for GDSII v5
     and 0x600 for GDSII v6.
 """)
-bgnlib = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNLIB,
+_BGNLIB = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNLIB,
     'Last modification time (datetime).', 'Last access time (datetime).')
-libdirsize = _records.SimpleOptionalRecord('libdirsize', tags.LIBDIRSIZE, None)
-srfname = _records.OptionalWholeRecord('srfname', tags.SRFNAME, 'Name of spacing rules file (bytes, optional).')
-libsecur = _records.ACLRecord('acls', tags.LIBSECUR, 'ACL data, list of tuples (GID, UID, ACCESS).')
-libname = _records.StringRecord('name', tags.LIBNAME, 'Library name (bytes).')
-reflibs = _records.OptionalWholeRecord('reflibs', tags.REFLIBS, None)
-fonts = _records.OptionalWholeRecord('fonts', tags.FONTS, None)
-attrtable = _records.OptionalWholeRecord('attrtable', tags.ATTRTABLE, None)
-generations = _records.SimpleOptionalRecord('generations', tags.GENERATIONS, None)
-format = _records.FormatRecord('format', 'masks', tags.FORMAT, None, None)
-units = _records.UnitsRecord('logical_unit', 'physical_unit', tags.UNITS, None, None)
+_LIBDIRSIZE = _records.SimpleOptionalRecord('libdirsize', tags.LIBDIRSIZE, None)
+_SRFNAME = _records.OptionalWholeRecord('srfname', tags.SRFNAME, 'Name of spacing rules file (bytes, optional).')
+_LIBSECUR = _records.ACLRecord('acls', tags.LIBSECUR, 'ACL data, list of tuples (GID, UID, ACCESS).')
+_LIBNAME = _records.StringRecord('name', tags.LIBNAME, 'Library name (bytes).')
+_REFLIBS = _records.OptionalWholeRecord('reflibs', tags.REFLIBS, None)
+_FONTS = _records.OptionalWholeRecord('fonts', tags.FONTS, None)
+_ATTRTABLE = _records.OptionalWholeRecord('attrtable', tags.ATTRTABLE, None)
+_GENERATIONS = _records.SimpleOptionalRecord('generations', tags.GENERATIONS, None)
+_FORMAT = _records.FormatRecord('format', 'masks', tags.FORMAT, None, None)
+_UNITS = _records.UnitsRecord('logical_unit', 'physical_unit', tags.UNITS, None, None)
 
 @_records.stream_class
 class Library(object):
@@ -50,8 +50,8 @@ class Library(object):
           HEADER BGNLIB [LIBDIRSIZE] [SRFNAME] [LIBSECUR] LIBNAME [REFLIBS]
           [FONTS] [ATTRTABLE] [GENERATIONS] [<format>] UNITS {<structure>}* ENDLIB
     """
-    _gds_objs = (header, bgnlib, libdirsize, srfname, libsecur, libname, reflibs,
-            fonts, attrtable, generations, format, units)
+    _gds_objs = (_HEADER, _BGNLIB, _LIBDIRSIZE, _SRFNAME, _LIBSECUR, _LIBNAME, _REFLIBS,
+            _FONTS, _ATTRTABLE, _GENERATIONS, _FORMAT, _UNITS)
 
     def __init__(self, unbuf_recs):
         recs = _utils.BufferedIterator(unbuf_recs)

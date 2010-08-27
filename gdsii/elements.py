@@ -53,20 +53,20 @@ __all__ = (
     'Box'
 )
 
-elflags = OptionalWholeRecord('elflags', tags.ELFLAGS, 'Element flags (bitfield).')
-plex = SimpleOptionalRecord('plex', tags.PLEX, 'Plex (integer).')
-layer = SimpleRecord('layer', tags.LAYER, 'Layer (integer).')
-data_type = SimpleRecord('data_type', tags.DATATYPE, 'Data type (integer).')
-path_type = SimpleOptionalRecord('path_type', tags.PATHTYPE, 'Path type (integer).')
-width = SimpleOptionalRecord('width', tags.WIDTH, 'Width of the path (integer).')
-bgn_extn = SimpleOptionalRecord('bgn_extn', tags.BGNEXTN, 'Beginning extension for path type 4 (integer, optional).')
-end_extn = SimpleOptionalRecord('end_extn', tags.ENDEXTN, 'End extension for path type 4 (integer, optional).')
-xy = XYRecord('xy', tags.XY, 'Points.')
-struct_name = StringRecord('struct_name', tags.SNAME, 'Name of a referenced structure (byte array).')
-strans = STransRecord('strans', tags.STRANS, 'Transformation flags.')
-colrow = ColRowRecord('cols', 'rows', 'Number of columns (integer).', 'Number of rows (integer).')
-text_type = SimpleRecord('text_type', tags.TEXTTYPE, 'Text type (integer).')
-presentation = OptionalWholeRecord('presentation', tags.PRESENTATION,
+_ELFLAGS = OptionalWholeRecord('elflags', tags.ELFLAGS, 'Element flags (bitfield).')
+_PLEX = SimpleOptionalRecord('plex', tags.PLEX, 'Plex (integer).')
+_LAYER = SimpleRecord('layer', tags.LAYER, 'Layer (integer).')
+_DATATYPE = SimpleRecord('data_type', tags.DATATYPE, 'Data type (integer).')
+_PATHTYPE = SimpleOptionalRecord('path_type', tags.PATHTYPE, 'Path type (integer).')
+_WIDTH = SimpleOptionalRecord('width', tags.WIDTH, 'Width of the path (integer).')
+_BGNEXTN = SimpleOptionalRecord('bgn_extn', tags.BGNEXTN, 'Beginning extension for path type 4 (integer, optional).')
+_ENDEXTN = SimpleOptionalRecord('end_extn', tags.ENDEXTN, 'End extension for path type 4 (integer, optional).')
+_XY = XYRecord('xy', tags.XY, 'Points.')
+_SNAME = StringRecord('struct_name', tags.SNAME, 'Name of a referenced structure (byte array).')
+_STRANS = STransRecord('strans', tags.STRANS, 'Transformation flags.')
+_COLROW = ColRowRecord('cols', 'rows', 'Number of columns (integer).', 'Number of rows (integer).')
+_TEXTTYPE = SimpleRecord('text_type', tags.TEXTTYPE, 'Text type (integer).')
+_PRESENTATION = OptionalWholeRecord('presentation', tags.PRESENTATION,
 """ Bit array that specifies how the text is presented (optional).
     Meaning of bits:
 
@@ -74,10 +74,10 @@ presentation = OptionalWholeRecord('presentation', tags.PRESENTATION,
     * Bits 12 and 13 specify vertical justification (0 - top, 1 - middle, 2 - bottom).
     * Bits 14 and 15 specify horizontal justification (0 - left, 1 - center, 2 - rigth).
 """)
-string = StringRecord('string', tags.STRING, 'A string as bytes array.')
-node_type = SimpleRecord('node_type', tags.NODETYPE, 'Node type (integer).')
-box_type = SimpleRecord('box_type', tags.BOXTYPE, 'Box type (integer).')
-properties = PropertiesRecord('properties',
+_STRING = StringRecord('string', tags.STRING, 'A string as bytes array.')
+_NODETYPE = SimpleRecord('node_type', tags.NODETYPE, 'Node type (integer).')
+_BOXTYPE = SimpleRecord('box_type', tags.BOXTYPE, 'Box type (integer).')
+_PROPERTIES = PropertiesRecord('properties',
 """ List containing properties of an element.
     Properties are represented as tuples (propattr, propvalue).
     Type of propattr is int, propvalue is bytes.
@@ -123,43 +123,43 @@ class ElementBase(object):
 class Boundary(ElementBase):
     """Class for :const:`BOUNDARY` GDSII element."""
     _gds_tag = tags.BOUNDARY
-    _gds_objs = (elflags, plex, layer, data_type, xy, properties)
+    _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _DATATYPE, _XY, _PROPERTIES)
 
 @_records.stream_class
 class Path(ElementBase):
     """Class for :const:`PATH` GDSII element."""
     _gds_tag = tags.PATH
-    _gds_objs = (elflags, plex, layer, data_type, path_type, width, bgn_extn, end_extn, xy, properties)
+    _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _DATATYPE, _PATHTYPE, _WIDTH, _BGNEXTN, _ENDEXTN, _XY, _PROPERTIES)
 
 @_records.stream_class
 class SRef(ElementBase):
     """Class for :const:`SREF` GDSII element."""
     _gds_tag = tags.SREF
-    _gds_objs = (elflags, plex, struct_name, strans, xy, properties)
+    _gds_objs = (_ELFLAGS, _PLEX, _SNAME, _STRANS, _XY, _PROPERTIES)
 
 @_records.stream_class
 class ARef(ElementBase):
     """Class for :const:`AREF` GDSII element."""
     _gds_tag = tags.AREF
-    _gds_objs = (elflags, plex, struct_name, strans, colrow, xy, properties)
+    _gds_objs = (_ELFLAGS, _PLEX, _SNAME, _STRANS, _COLROW, _XY, _PROPERTIES)
 
 @_records.stream_class
 class Text(ElementBase):
     """Class for :const:`TEXT` GDSII element."""
     _gds_tag = tags.TEXT
-    _gds_objs = (elflags, plex, layer, text_type, presentation, path_type, width, strans, xy, string, properties)
+    _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _TEXTTYPE, _PRESENTATION, _PATHTYPE, _WIDTH, _STRANS, _XY, _STRING, _PROPERTIES)
 
 @_records.stream_class
 class Node(ElementBase):
     """Class for :const:`NODE` GDSII element."""
     _gds_tag = tags.NODE
-    _gds_objs = (elflags, plex, layer, node_type, xy)
+    _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _NODETYPE, _XY)
 
 @_records.stream_class
 class Box(ElementBase):
     """Class for :const:`BOX` GDSII element."""
     _gds_tag = tags.BOX
-    _gds_objs = (elflags, plex, layer, box_type, xy, properties)
+    _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _BOXTYPE, _XY, _PROPERTIES)
 
 _all_elements = (Boundary, Path, SRef, ARef, Text, Node, Box)
 

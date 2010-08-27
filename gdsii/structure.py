@@ -22,16 +22,16 @@ from __future__ import absolute_import
 from . import tags, _records, RecordData
 from .elements import ElementBase
 
-strname = _records.StringRecord('name', tags.STRNAME, 'Structure name (bytes).')
-bgnstr = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,
+_STRNAME = _records.StringRecord('name', tags.STRNAME, 'Structure name (bytes).')
+_BGNSTR = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,
     'Last modification time (datetime).', 'Last access time (datetime).')
-strclass = _records.SimpleOptionalRecord('strclass', tags.STRCLASS,
+_STRCLASS = _records.SimpleOptionalRecord('strclass', tags.STRCLASS,
     'Structure class (int, optional).')
 
 @_records.stream_class
 class Structure(object):
     """GDSII structure class."""
-    _gds_objs = [bgnstr, strname, strclass]
+    _gds_objs = (_BGNSTR, _STRNAME, _STRCLASS)
 
     def __init__(self, recs):
         self._elements = []
