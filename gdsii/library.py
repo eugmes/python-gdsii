@@ -52,24 +52,36 @@ class Library(object):
     _gds_objs = (_HEADER, _BGNLIB, _LIBDIRSIZE, _SRFNAME, _LIBSECUR, _LIBNAME, _REFLIBS,
             _FONTS, _ATTRTABLE, _GENERATIONS, _FORMAT, _UNITS)
 
-    def __init__(self, unbuf_recs):
-        recs = _utils.BufferedIterator(unbuf_recs)
+    @classmethod
+    def load(cls, stream=None, itr=None):
+        """Load structure using file or iterable."""
+        self = cls.__new__(cls)
+
+        if stream is not None:
+            unbuf_gen = record.Record.iterate(stream)
+            gen = _utils.BufferedIterator(unbuf_gen)
+        elif itr is not None:
+            gen = _utils.BufferedIterator(itr)
+        else:
+            raise TypeError('load() requires stream or gen argument')
+
         self._structures = []
 
-        next(recs)
+        next(gen)
         for obj in self._gds_objs:
-            obj.read(self, recs)
+            obj.read(self, gen)
 
         # read structures starting with BGNSTR or ENDLIB
-        rec = recs.current
+        rec = gen.current
         while True:
             if rec.tag == tags.BGNSTR:
-                self._structures.append(structure.Structure(recs))
-                rec = next(recs)
+                self._structures.append(structure.Structure(gen))
+                rec = next(gen)
             elif rec.tag == tags.ENDLIB:
                 break
             else:
                 raise exceptions.FormatError('unexpected tag where BGNSTR or ENDLIB are expected: %d', rec.tag)
+        return self
 
     def save(self, stream):
         for obj in self._gds_objs:
