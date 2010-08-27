@@ -15,18 +15,12 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class BufferedIterator(object):
-    __slots__ = ['_iterator', '_current']
+    __slots__ = ['_iterator', 'current']
     def __init__(self, iterator):
         self._iterator = iterator
 
-    @property
-    def current(self):
-        if not hasattr(self, '_current'):
-            return self.next()
-        return self._current
-
     def next(self):
-        self._current = next(self._iterator)
-        return self._current
+        self.current = next(self._iterator)
+        return self.current
 
     __next__ = next
