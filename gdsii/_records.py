@@ -47,6 +47,26 @@ class AbstractRecord(object):
     def __repr__(self):
         return '<property: %s>'%self.variable
 
+class SecondVar(object):
+    """Class that simplifies second property support."""
+    def __init__(self, variable2, doc2):
+        self.variable2 = variable2
+        self.priv_variable2 = '_' + variable2
+        self.doc2 = doc2
+
+    def getter2(self):
+        def f(obj):
+            return getattr(obj, self.priv_variable2)
+        return f
+
+    def setter2(self):
+        def f(obj, value):
+            setattr(obj, self.priv_variable2, value)
+        return f
+
+    def property2(self):
+        return property(self.getter2(), self.setter2(), doc=self.doc2)
+
 class SimpleRecord(AbstractRecord):
     def __init__(self, variable, gds_record, doc):
         AbstractRecord.__init__(self, variable, doc)
@@ -132,26 +152,14 @@ class StringRecord(SimpleRecord):
     def save(self, instance, stream):
         RecordData(self.gds_record, getattr(instance, self.priv_variable)).save(stream)
 
-class ColRowRecord(AbstractRecord):
+class ColRowRecord(AbstractRecord, SecondVar):
     def __init__(self, variable1, variable2, doc1, doc2):
         AbstractRecord.__init__(self, variable1, doc1)
-        self.variable2 = variable2
-        self.priv_variable2 = '_' + variable2
-        self.doc2 = doc2
-
-    def getter2(self):
-        def f(obj):
-            return getattr(obj, self.priv_variable2)
-        return f
-
-    def setter2(self):
-        def f(obj, value):
-            setattr(obj, self.priv_variable2, value)
-        return f
+        SecondVar.__init__(self, variable2, doc2)
 
     def props(self):
         res = AbstractRecord.props(self)
-        res[self.variable2] =  property(self.getter2(), self.setter2(), doc=self.doc2)
+        res[self.variable2] = self.property2()
         return res
 
     def read(self, instance, gen):
@@ -168,26 +176,14 @@ class ColRowRecord(AbstractRecord):
         row = getattr(instance, self.priv_variable2)
         RecordData(tags.COLROW, (col, row)).save(stream)
 
-class TimestampsRecord(SimpleRecord):
+class TimestampsRecord(SimpleRecord, SecondVar):
     def __init__(self, variable1, variable2, gds_record, doc1, doc2):
         SimpleRecord.__init__(self, variable1, gds_record, doc1)
-        self.variable2 = variable2
-        self.priv_variable2 = '_' + variable2
-        self.doc2 = doc2
-
-    def getter2(self):
-        def f(obj):
-            return getattr(obj, self.priv_variable2)
-        return f
-
-    def setter2(self):
-        def f(obj, value):
-            setattr(obj, self.priv_variable2, value)
-        return f
+        SecondVar.__init__(self, variable2, doc2)
 
     def props(self):
         res = SimpleRecord.props(self)
-        res[self.variable2] =  property(self.getter2(), self.setter2(), doc=self.doc2)
+        res[self.variable2] = self.property2()
         return res
 
     def read(self, instance, gen):
@@ -234,25 +230,14 @@ class ACLRecord(SimpleOptionalRecord):
         if data:
             RecordData(self.gds_record, acls=data).save(stream)
 
-class FormatRecord(SimpleOptionalRecord):
+class FormatRecord(SimpleOptionalRecord, SecondVar):
     def __init__(self, variable1, variable2, gds_record, doc1, doc2):
         SimpleOptionalRecord.__init__(self, variable1, gds_record, doc1)
-        self.variable2 = variable2
-        self.priv_variable2 = '_' + variable2
-        self.doc2 = doc2
-
-    def getter2(self):
-        def f(obj):
-            return getattr(obj, self.priv_variable2)
-        return f
-
-    def setter2(self):
-        def f(obj, value):
-            setattr(obj, self.priv_variable2, value)
+        SecondVar.__init__(self, variable2, doc2)
 
     def props(self):
         res = SimpleOptionalRecord.props(self)
-        res[self.variable2] =  property(self.getter2(), self.setter2(), doc=self.doc2)
+        res[self.variable2] = self.property2()
         return res
 
     def optional_read(self, instance, gen, rec):
