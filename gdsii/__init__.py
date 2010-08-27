@@ -428,7 +428,7 @@ class RecordData(object):
     """
     __slots__ = ['_tag', '_data']
 
-    def __init__(self, tag, data=None, points=None, times=None):
+    def __init__(self, tag, data=None, points=None, times=None, acls=None):
         """Initialize with tag and parsed data."""
         self._tag = tag
         if data is not None:
@@ -457,6 +457,11 @@ class RecordData(object):
                 acc_time.minute,
                 acc_time.second
             )
+        elif acls is not None:
+            new_data = []
+            for acl in acls:
+                new_data.extend(acl)
+            self._data = new_data
         else:
             self._data = None
 
@@ -607,6 +612,25 @@ class RecordData(object):
             raise DataSizeError(self._tag)
         return (datetime(self._data[0]+1900, *self._data[1:6]),
                 datetime(self._data[6]+1900, *self._data[7:12]))
+
+    @property
+    def acls(self):
+        """
+        Convert data to list of acls ``(GID, UID, ACCESS)``.
+        Useful for :const:`LIBSECUR`.
+
+            >>> r = RecordData(tags.LIBSECUR, [1, 2, 3, 4, 5, 6])
+            >>> r.acls
+            [(1, 2, 3), (4, 5, 6)]
+            >>> r = RecordData(tags.LIBSECUR, [1, 2, 3, 4]) # wrong data size
+            >>> r.acls
+            Traceback (most recent call last):
+                ...
+            DataSizeError: 15106
+        """
+        if len(self._data) % 3:
+            raise DataSizeError(self._tag)
+        return list(zip(self._data[::3], self.data[1::3], self.data[2::3]))
 
 def all_records(stream):
     """
