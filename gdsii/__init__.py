@@ -34,28 +34,9 @@ from datetime import datetime
 from . import tags, types, exceptions
 
 __all__ = [
-    'type_of_tag',
     'RecordData',
     'all_records'
 ]
-
-def type_of_tag(tag):
-    """
-    Returns type of a tag.
-
-    :param tag: tag ID
-    :type tag: int
-    :rtype: int
-
-    Examples:
-
-        >>> type_of_tag(tags.HEADER)
-        2
-        >>> type_of_tag(tags.MASK)
-        6
-
-    """
-    return tag & 0xff
 
 _RECORD_HEADER_FMT = struct.Struct('>HH')
 
@@ -472,7 +453,7 @@ class RecordData(object):
         :raises: :exc:`EndOfFileError` if end of file is reached
         """
         tag, data = _read_record(stream)
-        tag_type = type_of_tag(tag)
+        tag_type = tags.type_of_tag(tag)
         try:
             parse_func = _PARSE_FUNCS[tag_type]
         except KeyError:
@@ -516,12 +497,12 @@ class RecordData(object):
     @property
     def tag_type(self):
         """Tag data type ID."""
-        return type_of_tag(self._tag)
+        return tags.type_of_tag(self._tag)
 
     @property
     def tag_type_name(self):
         """Tag data type name, if known, and formatted number otherwise."""
-        tag_type = type_of_tag(self._tag)
+        tag_type = tags.type_of_tag(self._tag)
         if tag_type in types.REV_DICT:
             return types.REV_DICT[tag_type]
         return '0x%02x' % tag_type

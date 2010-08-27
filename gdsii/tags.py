@@ -97,3 +97,25 @@ for (key, value) in DICT.items():
     REV_DICT[value] = key
 
 del key, value
+
+def type_of_tag(tag):
+    """
+    Returns type of a tag.
+
+    :param tag: tag ID
+    :type tag: int
+    :rtype: int
+
+    Examples:
+
+        >>> type_of_tag(HEADER)
+        2
+        >>> type_of_tag(MASK)
+        6
+
+    """
+    return tag & 0xff
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
