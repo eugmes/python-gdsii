@@ -234,6 +234,51 @@ class ACLRecord(SimpleOptionalRecord):
         if data:
             RecordData(self.gds_record, acls=data).save(stream)
 
+class FormatRecord(SimpleOptionalRecord):
+    def __init__(self, variable1, variable2, gds_record, doc1, doc2):
+        SimpleOptionalRecord.__init__(self, variable1, gds_record, doc1)
+        self.variable2 = variable2
+        self.priv_variable2 = '_' + variable2
+        self.doc2 = doc2
+
+    def getter2(self):
+        def f(obj):
+            return getattr(obj, self.priv_variable2)
+        return f
+
+    def setter2(self):
+        def f(obj, value):
+            setattr(obj, self.priv_variable2, value)
+
+    def props(self):
+        res = SimpleOptionalRecord.props(self)
+        res[self.variable2] =  property(self.getter2(), self.setter2(), doc=self.doc2)
+        return res
+
+    def optional_read(self, instance, gen, rec):
+        SimpleOptionalRecord.optional_read(self, instance, gen, rec)
+        fmt = rec.data[0]
+        # MASKS are required for formats 1 and 3
+        if fmt == 1 or fmt == 3:
+            cur_rec = gen.curent
+            masks = []
+            while cur_rec.tag == tags.MASK:
+                masks.append(cur_rec.data)
+                cur_rec = next(gen)
+            cur_rec.check_tag(tags.ENDMASKS)
+            setattr(instance, self.priv_variable2, masks)
+            next(gen)
+
+    def write(self, instance, stream):
+        fmt = getattr(instance, self.priv_variable, None)
+        if fmt is not None:
+            SimpleOptionalRecord.write(self, instance, stream)
+            if fmt == 1 or fmt == 3:
+                masks = getattr(instance, self.priv_variable2, [])
+                for mask in masks:
+                    RecordData(tags.MASK, mask).save(stream)
+                RecordData(tags.ENDMASKS).save(stream)
+
 def stream_class(cls):
     """
     Decorator for classes that can be read and written to a GDSII stream.
