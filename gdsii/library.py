@@ -75,7 +75,7 @@ class Library(object):
         rec = gen.current
         while True:
             if rec.tag == tags.BGNSTR:
-                self._structures.append(structure.Structure(gen))
+                self._structures.append(structure.Structure._load(gen))
                 rec = next(gen)
             elif rec.tag == tags.ENDLIB:
                 break
@@ -87,7 +87,7 @@ class Library(object):
         for obj in self._gds_objs:
             obj.save(self, stream)
         for struc in self._structures:
-            struc.save(stream)
+            struc._save(stream)
         record.Record(tags.ENDLIB).save(stream)
 
     @property

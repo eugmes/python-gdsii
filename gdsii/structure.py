@@ -32,17 +32,20 @@ class Structure(object):
     """GDSII structure class."""
     _gds_objs = (_BGNSTR, _STRNAME, _STRCLASS)
 
-    def __init__(self, recs):
+    @classmethod
+    def _load(cls, gen):
+        self = cls.__new__(cls)
         self._elements = []
 
         for obj in self._gds_objs:
-            obj.read(self, recs)
+            obj.read(self, gen)
 
         # read elements till ENDSTR
-        while recs.current.tag != tags.ENDSTR:
-            self._elements.append(elements._Base.load(recs))
+        while gen.current.tag != tags.ENDSTR:
+            self._elements.append(elements._Base.load(gen))
+        return self
 
-    def save(self, stream):
+    def _save(self, stream):
         for obj in self._gds_objs:
             obj.save(self, stream)
         for elem in self._elements:
