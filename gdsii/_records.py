@@ -63,24 +63,28 @@ class SimpleRecord(AbstractRecord):
         RecordData(self.gds_record, (getattr(instance, self.priv_variable),)).save(stream)
 
 class SimpleOptionalRecord(SimpleRecord):
+    def optional_read(self, instance, gen, rec):
+        """
+        Called when optional tag is found. `rec` contains that tag.
+        `gen` is advanced to next record befor calling this function.
+        """
+        rec.check_size(1)
+        setattr(instance, self.priv_variable, rec.data[0])
+
     def read(self, instance, gen):
         rec = gen.current
         if rec.tag == self.gds_record:
-            rec.check_size(1)
-            setattr(instance, self.priv_variable, rec.data[0])
             next(gen)
+            self.optional_read(instance, gen, rec)
 
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
         if data is not None:
             RecordData(self.gds_record, (data,)).save(stream)
 
-class OptionalFlagsRecord(SimpleRecord):
-    def read(self, instance, gen):
-        rec = gen.current
-        if rec.tag == self.gds_record:
-            setattr(instance, self.priv_variable, rec.data)
-            next(gen)
+class OptionalFlagsRecord(SimpleOptionalRecord):
+    def optional_read(self, instance, gen, rec):
+        setattr(instance, self.priv_variable, rec.data)
 
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
@@ -128,11 +132,8 @@ class StringRecord(SimpleRecord):
         RecordData(self.gds_record, getattr(instance, self.priv_variable)).save(stream)
 
 class OptionalStringRecord(SimpleOptionalRecord):
-    def read(self, instance, gen):
-        rec = gen.current
-        if rec.tag == self.gds_record:
-            setattr(instance, self.priv_variable, rec.data)
-            next(gen)
+    def optional_read(self, instance, gen, rec):
+        setattr(instance, self.priv_variable, rec.data)
 
     def save(self, instance, stream):
         value = getattr(instance, self.priv_variable, None)
@@ -220,13 +221,10 @@ class STransRecord(OptionalFlagsRecord):
                 list(OptionalFlagsRecord.props(self).items()))
         return res
 
-    def read(self, instance, gen):
-        rec = gen.current
-        if rec.tag == self.gds_record:
-            setattr(instance, self.priv_variable, rec.data)
-            next(gen)
-            self.mag.read(instance, gen)
-            self.angle.read(instance, gen)
+    def optional_read(self, instance, gen, rec):
+        setattr(instance, self.priv_variable, rec.data)
+        self.mag.read(instance, gen)
+        self.angle.read(instance, gen)
 
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
@@ -236,11 +234,8 @@ class STransRecord(OptionalFlagsRecord):
             self.angle.save(instance, stream)
 
 class ACLRecord(SimpleOptionalRecord):
-    def read(self, instance, gen):
-        rec = gen.current
-        if rec.tag == self.gdsii_record:
-            setattr(instance, self.priv_variable, rec.acls)
-            next(gen)
+    def optional_read(self, instance, gen, rec):
+        setattr(instance, self.priv_variable, rec.acls)
 
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
