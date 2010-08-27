@@ -1,7 +1,7 @@
 #! /usr/bin/python
 """Demonstration program for pygdsii basic reading function."""
 from __future__ import print_function
-from gdsii import all_records
+from gdsii import RecordData
 from gdsii.library import Library
 from gdsii import elements
 import sys
@@ -180,7 +180,7 @@ def dump_structure(dumper, struc):
 def dump_library(dumper, lib):
     dumper.emit(events.StreamStartEvent(encoding='utf-8'))
     dumper.emit(events.DocumentStartEvent(explicit=False))
-    
+
     dumper.emit(events.MappingStartEvent(None, LIBRARY, False))
     emit_string(dumper, 'version', INT, '0x%x'%lib.version)
     name(dumper, lib)
@@ -199,7 +199,7 @@ def dump_library(dumper, lib):
 
 def main(name):
     with open(name, 'rb') as a_file:
-        lib = Library(all_records(a_file))
+        lib = Library(RecordData.iterate(a_file))
     dumper = Dumper(sys.stdout)
     dump_library(dumper, lib)
 

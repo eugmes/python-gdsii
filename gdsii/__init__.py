@@ -579,19 +579,20 @@ class RecordData(object):
             raise exceptions.DataSizeError(self._tag)
         return list(zip(self._data[::3], self.data[1::3], self.data[2::3]))
 
-def all_records(stream):
-    """
-    Generator function for iterating over all records in a GDSII file.
-    Yields :class:`RecordData` objects.
+    @classmethod
+    def iterate(cls, stream):
+        """
+        Generator function for iterating over all records in a GDSII file.
+        Yields :class:`RecordData` objects.
 
-    :param stream: GDS file opened for reading in binary mode
-    """
-    last = False
-    while not last:
-        rec = RecordData.read(stream)
-        if rec.tag == tags.ENDLIB:
-            last = True
-        yield rec
+        :param stream: GDS file opened for reading in binary mode
+        """
+        last = False
+        while not last:
+            rec = cls.read(stream)
+            if rec.tag == tags.ENDLIB:
+                last = True
+            yield rec
 
 if __name__ == '__main__':
     import doctest
