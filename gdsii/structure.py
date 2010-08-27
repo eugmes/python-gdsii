@@ -42,14 +42,14 @@ class Structure(object):
 
         # read elements till ENDSTR
         while gen.current.tag != tags.ENDSTR:
-            self._elements.append(elements._Base.load(gen))
+            self._elements.append(elements._Base._load(gen))
         return self
 
     def _save(self, stream):
         for obj in self._gds_objs:
             obj.save(self, stream)
         for elem in self._elements:
-            elem.save(stream)
+            elem._save(stream)
         record.Record(tags.ENDSTR).save(stream)
 
     @property

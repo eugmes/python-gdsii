@@ -89,33 +89,33 @@ class _Base(object):
     _gds_objs = None
 
     @classmethod
-    def load(cls, recs):
+    def _load(cls, gen):
         """
-        Load an element from file using given generator `recs`.
+        Load an element from file using given generator `gen`.
 
-        :param recs: :class:`pygdsii.record.Record` generator
-        :returns: new element of class defined by `recs`
+        :param gen: :class:`pygdsii.record.Record` generator
+        :returns: new element of class defined by `gen`
         """
-        element_class = cls._tag_to_class_map[recs.current.tag]
+        element_class = cls._tag_to_class_map[gen.current.tag]
         if not element_class:
             raise exceptions.FormatError('unexpected element tag')
         # do not call __init__() during reading from file
         # __init__() should require some arguments
-        new_element = element_class._read_element(recs)
+        new_element = element_class._read_element(gen)
         return new_element
 
     @classmethod
-    def _read_element(cls, recs):
-        """Read element using `recs` generator."""
+    def _read_element(cls, gen):
+        """Read element using `gen` generator."""
         self = cls.__new__(cls)
-        next(recs)
+        next(gen)
         for obj in self._gds_objs:
-            obj.read(self, recs)
-        recs.current.check_tag(tags.ENDEL)
-        next(recs)
+            obj.read(self, gen)
+        gen.current.check_tag(tags.ENDEL)
+        next(gen)
         return self
 
-    def save(self, stream):
+    def _save(self, stream):
         record.Record(self._gds_tag).save(stream)
         for obj in self._gds_objs:
             obj.save(self, stream)
