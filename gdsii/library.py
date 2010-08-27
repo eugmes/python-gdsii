@@ -19,8 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, exceptions, record, _utils, _records
-from .structure import Structure
+from . import exceptions, record, structure, tags, _records, _utils
 
 _HEADER = _records.SimpleRecord('version', tags.HEADER,
 """ GDSII file verion.
@@ -65,7 +64,7 @@ class Library(object):
         rec = recs.current
         while True:
             if rec.tag == tags.BGNSTR:
-                self._structures.append(Structure(recs))
+                self._structures.append(structure.Structure(recs))
                 rec = next(recs)
             elif rec.tag == tags.ENDLIB:
                 break

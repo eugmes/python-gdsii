@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, elements, record, _records
+from . import elements, record, tags, _records
 
 _STRNAME = _records.StringRecord('name', tags.STRNAME, 'Structure name (bytes).')
 _BGNSTR = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,

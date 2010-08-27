@@ -39,7 +39,7 @@
         +-------------------+-------------------+
 """
 from __future__ import absolute_import
-from . import tags, exceptions, record, _records
+from . import exceptions, record, tags, _records
 
 __all__ = (
     'Boundary',

@@ -15,10 +15,10 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
-import struct
-import math
+from . import exceptions, tags, types
 from datetime import datetime
-from . import tags, types, exceptions
+import math
+import struct
 
 __all__ = [
     'Record',
