@@ -27,19 +27,7 @@ __all__ = [
 _RECORD_HEADER_FMT = struct.Struct('>HH')
 
 def _parse_nodata(data):
-    """
-    Parse :const:`NODATA` data type.
-
-        >>> _parse_nodata(b'')
-        ()
-        >>> _parse_nodata(b'something')
-        Traceback (most recent call last):
-            ...
-        IncorrectDataSize: NODATA
-    """
-    if len(data):
-        raise exceptions.IncorrectDataSize('NODATA')
-    return ()
+    """Parse :const:`NODATA` data type. Does nothing."""
 
 def _parse_bitarray(data):
     """
