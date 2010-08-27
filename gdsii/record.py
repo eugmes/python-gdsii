@@ -26,29 +26,6 @@ __all__ = [
 
 _RECORD_HEADER_FMT = struct.Struct('>HH')
 
-def _read_record(stream):
-    """
-    Reads GDSII element. Return tuple ``(tag, data)``.
-    Data is returned as string.
-    Raises :exc:`EndOfFileError` if end of file is reached.
-    """
-    header = stream.read(4)
-    if not header or len(header) != 4:
-        raise exceptions.EndOfFileError
-    data_size, tag = _RECORD_HEADER_FMT.unpack(header)
-    if data_size < 4:
-        raise exceptions.IncorrectDataSize('data size is too small')
-    if data_size % 2:
-        raise exceptions.IncorrectDataSize('data size is odd')
-
-    data_size -= 4 # substract header size
-
-    data = stream.read(data_size)
-    if len(data) != data_size:
-        raise exceptions.EndOfFileError
-
-    return (tag, data)
-
 def _parse_nodata(data):
     """
     Parse :const:`NODATA` data type.
@@ -438,7 +415,21 @@ class Record(object):
         :raises: :exc:`UnsupportedTagType` if data cannot be parsed
         :raises: :exc:`EndOfFileError` if end of file is reached
         """
-        tag, data = _read_record(stream)
+        header = stream.read(4)
+        if not header or len(header) != 4:
+            raise exceptions.EndOfFileError
+        data_size, tag = _RECORD_HEADER_FMT.unpack(header)
+        if data_size < 4:
+            raise exceptions.IncorrectDataSize('data size is too small')
+        if data_size % 2:
+            raise exceptions.IncorrectDataSize('data size is odd')
+
+        data_size -= 4 # substract header size
+
+        data = stream.read(data_size)
+        if len(data) != data_size:
+            raise exceptions.EndOfFileError
+
         tag_type = tags.type_of_tag(tag)
         try:
             parse_func = _PARSE_FUNCS[tag_type]
