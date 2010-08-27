@@ -71,10 +71,7 @@ class SimpleOptionalRecord(SimpleRecord):
             next(gen)
 
     def save(self, instance, stream):
-        try:
-            data = getattr(instance, self.priv_variable)
-        except AttributeError:
-            data = None
+        data = getattr(instance, self.priv_variable, None)
         if data is not None:
             RecordData(self.gds_record, (data,)).save(stream)
 
@@ -86,10 +83,7 @@ class OptionalFlagsRecord(SimpleRecord):
             next(gen)
 
     def save(self, instance, stream):
-        try:
-            data = getattr(instance, self.priv_variable)
-        except AttributeError:
-            data = None
+        data = getattr(instance, self.priv_variable, None)
         if data is not None:
             RecordData(self.gds_record, data).save(stream)
 
@@ -138,12 +132,10 @@ class OptionalStringRecord(SimpleOptionalRecord):
         rec = gen.current
         if rec.tag == self.gds_record:
             setattr(instance, self.priv_variable, rec.data)
+            next(gen)
 
     def save(self, instance, stream):
-        try:
-            value = getattr(instance, self.priv_variable)
-        except AttributeError:
-            value = None
+        value = getattr(instance, self.priv_variable, None)
         if value is not None:
             RecordData(self.gds_record, value).save(stream)
 
@@ -237,11 +229,7 @@ class STransRecord(OptionalFlagsRecord):
             self.angle.read(instance, gen)
 
     def save(self, instance, stream):
-        try:
-            data = getattr(instance, self.priv_variable)
-        except AttributeError:
-            data = None
-
+        data = getattr(instance, self.priv_variable, None)
         if data is not None:
             OptionalFlagsRecord.save(self, instance, stream)
             self.mag.save(instance, stream)
