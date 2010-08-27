@@ -254,7 +254,7 @@ class FormatRecord(SimpleOptionalRecord, SecondVar):
             setattr(instance, self.priv_variable2, masks)
             next(gen)
 
-    def write(self, instance, stream):
+    def save(self, instance, stream):
         fmt = getattr(instance, self.priv_variable, None)
         if fmt is not None:
             SimpleOptionalRecord.save(self, instance, stream)
@@ -283,10 +283,10 @@ class UnitsRecord(SimpleRecord, SecondVar):
         setattr(instance, self.priv_variable2, unit2)
         next(gen)
 
-    def write(self, instance, stream):
+    def save(self, instance, stream):
         unit1 = getattr(instance, self.priv_variable)
         unit2 = getattr(instance, self.priv_variable2)
-        RecordData(self.gds_record, [unit1, unit2]).write(stream)
+        RecordData(self.gds_record, (unit1, unit2)).save(stream)
 
 def stream_class(cls):
     """
