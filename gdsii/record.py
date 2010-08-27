@@ -64,9 +64,10 @@ def _parse_int2(data):
             ...
         IncorrectDataSize: INT2
     """
-    if not len(data) or (len(data) % 2):
+    data_len = len(data)
+    if not data_len or (data_len % 2):
         raise exceptions.IncorrectDataSize('INT2')
-    return struct.unpack('>%dh' % (len(data)/2), data)
+    return struct.unpack('>%dh' % (data_len/2), data)
 
 def _parse_int4(data):
     """
@@ -83,9 +84,10 @@ def _parse_int4(data):
             ...
         IncorrectDataSize: INT4
     """
-    if not len(data) or (len(data) % 4):
+    data_len = len(data)
+    if not data_len or (data_len % 4):
         raise exceptions.IncorrectDataSize('INT4')
-    return struct.unpack('>%dl' % (len(data)/4), data)
+    return struct.unpack('>%dl' % (data_len/4), data)
 
 def _int_to_real(num):
     """
@@ -125,9 +127,10 @@ def _parse_real8(data):
             ...
         IncorrectDataSize: REAL8
     """
-    if not len(data) or (len(data) % 8):
+    data_len = len(data)
+    if not data_len or (data_len % 8):
         raise exceptions.IncorrectDataSize('REAL8')
-    ints = struct.unpack('>%dQ' % (len(data)/8), data)
+    ints = struct.unpack('>%dQ' % (data_len/8), data)
     return tuple(_int_to_real(n) for n in ints)
 
 def _parse_ascii(data):
