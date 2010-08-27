@@ -169,6 +169,41 @@ class ColRowRecord(AbstractRecord):
         row = getattr(instance, self.priv_variable2)
         RecordData(tags.COLROW, (col, row)).save(stream)
 
+class TimestampsRecord(SimpleRecord):
+    def __init__(self, variable1, variable2, gds_record, doc1, doc2):
+        SimpleRecord.__init__(self, variable1, gds_record, doc1)
+        self.variable2 = variable2
+        self.priv_variable2 = '_' + variable2
+        self.doc2 = doc2
+
+    def getter2(self):
+        def f(obj):
+            return getattr(obj, self.priv_variable2)
+        return f
+
+    def setter2(self):
+        def f(obj, value):
+            setattr(obj, self.priv_variable2, value)
+        return f
+
+    def props(self):
+        res = SimpleRecord.props(self)
+        res[self.variable2] =  property(self.getter2(), self.setter2(), doc=self.doc2)
+        return res
+
+    def read(self, instance, gen):
+        rec = gen.current
+        rec.check_tag(self.gds_record)
+        mod_time, acc_time = rec.times
+        setattr(instance, self.priv_variable, mod_time)
+        setattr(instance, self.priv_variable2, acc_time)
+        next(gen)
+
+    def save(self, instance, stream):
+        mod_time = getattr(instance, self.priv_variable)
+        acc_time = getattr(instance, self.priv_variable2)
+        RecordData(self.gds_record, times=(mod_time, acc_time)).save(stream)
+
 class STransRecord(OptionalFlagsRecord):
     mag = SimpleOptionalRecord('mag', tags.MAG, 'Magnification (real, optional).')
     angle = SimpleOptionalRecord('angle', tags.ANGLE, 'Rotation angle (real, optional).')
