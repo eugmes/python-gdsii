@@ -63,7 +63,7 @@ class SimpleRecord(AbstractRecord):
         RecordData(self.gds_record, (getattr(instance, self.priv_variable),)).save(stream)
 
 class SimpleOptionalRecord(SimpleRecord):
-    def optional_read(self, instance, gen, rec):
+    def optional_read(self, instance, unused_gen, rec):
         """
         Called when optional tag is found. `rec` contains that tag.
         `gen` is advanced to next record befor calling this function.
@@ -84,7 +84,7 @@ class SimpleOptionalRecord(SimpleRecord):
 
 class OptionalWholeRecord(SimpleOptionalRecord):
     """Class for records that need to store all data (not data[0])."""
-    def optional_read(self, instance, gen, rec):
+    def optional_read(self, instance, unused_gen, rec):
         setattr(instance, self.priv_variable, rec.data)
 
     def save(self, instance, stream):
@@ -226,7 +226,7 @@ class STransRecord(OptionalWholeRecord):
             self.angle.save(instance, stream)
 
 class ACLRecord(SimpleOptionalRecord):
-    def optional_read(self, instance, gen, rec):
+    def optional_read(self, instance, unused_gen, rec):
         setattr(instance, self.priv_variable, rec.acls)
 
     def save(self, instance, stream):
