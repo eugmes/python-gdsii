@@ -19,55 +19,37 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, _ignore_record, RecordData
+from . import tags, _records, _ignore_record, RecordData
 from .elements import ElementBase
 
+strname = _records.StringRecord('name', tags.STRNAME, 'Structure name (bytes).')
+bgnstr = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,
+    'Last modification time (datetime).', 'Last access time (datetime).')
+strclass = _records.SimpleOptionalRecord('strclass', tags.STRCLASS,
+    'Structure class (int, optional).')
+
+@_records.stream_class
 class Structure(object):
     """GDSII structure class."""
-
-    __slots__ = ['_mod_time', '_acc_time', '_name', '_elements']
+    _gds_objs = [bgnstr, strname, strclass]
 
     def __init__(self, recs):
         self._elements = []
 
-        self._mod_time, self._acc_time = recs.current.times
-
-        # STRNAME
-        rec = next(recs)
-        rec.check_tag(tags.STRNAME)
-        self._name = rec.data
-
-        # ignore STRCLASS
-        rec = _ignore_record(recs, next(recs), tags.STRCLASS)
+        for obj in self._gds_objs:
+            obj.read(self, recs)
 
         # read elements till ENDSTR
         while recs.current.tag != tags.ENDSTR:
             self._elements.append(ElementBase.load(recs))
 
     def save(self, stream):
-        RecordData(tags.BGNSTR, times=(self._mod_time, self._acc_time)).save(stream)
-        RecordData(tags.STRNAME, self._name).save(stream)
-        # ignore STRCLASS
+        for obj in self._gds_objs:
+            obj.save(self, stream)
         for elem in self._elements:
             elem.save(stream)
         RecordData(tags.ENDSTR).save(stream)
 
-    @property
-    def mod_time(self):
-        """Last modification time (datetime)."""
-        return self._mod_time
-
-    @property
-    def acc_time(self):
-        """Last access time (datetime)."""
-        return self._acc_time
-
-    @property
-    def name(self):
-        """Structure name (bytes)."""
-        return self._name
-
-    # TODO remove
     @property
     def elements(self):
         """
