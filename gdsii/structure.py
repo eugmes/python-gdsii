@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, _records, _ignore_record, RecordData
+from . import tags, _records, RecordData
 from .elements import ElementBase
 
 strname = _records.StringRecord('name', tags.STRNAME, 'Structure name (bytes).')
