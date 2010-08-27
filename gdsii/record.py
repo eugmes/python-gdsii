@@ -455,7 +455,7 @@ class Record(object):
         record_size = len(packed_data) + 4
         if record_size > 0xFFFF:
             raise exceptions.FormatError('data size is too big')
-        header = struct.pack('>HH', record_size, self._tag)
+        header = _RECORD_HEADER_FMT.pack(record_size, self._tag)
         stream.write(header)
         stream.write(packed_data)
 
