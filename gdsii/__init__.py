@@ -31,39 +31,14 @@ from __future__ import absolute_import
 import struct
 import math
 from datetime import datetime
-from . import tags, types
+from . import tags, types, exceptions
 
 __all__ = [
-    'FormatError',
-    'EndOfFileError',
-    'IncorrectDataSize',
-    'UnsupportedTagType',
-    'MissingRecord',
-    'DataSizeError',
     'type_of_tag',
     'RecordData',
     'all_records'
 ]
 
-class FormatError(Exception):
-    """Base class for all GDSII exceptions."""
-
-class EndOfFileError(FormatError):
-    """Raised on unexpected end of file."""
-
-class IncorrectDataSize(FormatError):
-    """Raised if data size is incorrect."""
-
-class UnsupportedTagType(FormatError):
-    """Raised on unsupported tag type."""
-
-class MissingRecord(FormatError):
-    """Raised when required record is not found."""
-
-class DataSizeError(FormatError):
-    """Raised when data size is incorrect for a given record."""
-
-# lambda because otherwise k and v are module variables
 # PYTHON3: can be simplified
 _TAG_TO_NAME_MAP = (lambda:
     dict([(tags.__dict__[key], key) for key in dir(tags) if key[0] != '_'])
@@ -101,18 +76,18 @@ def _read_record(stream):
     """
     header = stream.read(4)
     if not header or len(header) != 4:
-        raise EndOfFileError
+        raise exceptions.EndOfFileError
     data_size, tag = _RECORD_HEADER_FMT.unpack(header)
     if data_size < 4:
-        raise IncorrectDataSize('data size is too small')
+        raise exceptions.IncorrectDataSize('data size is too small')
     if data_size % 2:
-        raise IncorrectDataSize('data size is odd')
+        raise exceptions.IncorrectDataSize('data size is odd')
 
     data_size -= 4 # substract header size
 
     data = stream.read(data_size)
     if len(data) != data_size:
-        raise EndOfFileError
+        raise exceptions.EndOfFileError
 
     return (tag, data)
 
@@ -128,7 +103,7 @@ def _parse_nodata(data):
         IncorrectDataSize: NODATA
     """
     if len(data):
-        raise IncorrectDataSize('NODATA')
+        raise exceptions.IncorrectDataSize('NODATA')
     return ()
 
 def _parse_bitarray(data):
@@ -147,7 +122,7 @@ def _parse_bitarray(data):
         IncorrectDataSize: BITARRAY
     """
     if len(data) != 2:
-        raise IncorrectDataSize('BITARRAY')
+        raise exceptions.IncorrectDataSize('BITARRAY')
     (val,) = struct.unpack('>H', data)
     return val
 
@@ -167,7 +142,7 @@ def _parse_int2(data):
         IncorrectDataSize: INT2
     """
     if not len(data) or (len(data) % 2):
-        raise IncorrectDataSize('INT2')
+        raise exceptions.IncorrectDataSize('INT2')
     return struct.unpack('>%dh' % (len(data)/2), data)
 
 def _parse_int4(data):
@@ -186,7 +161,7 @@ def _parse_int4(data):
         IncorrectDataSize: INT4
     """
     if not len(data) or (len(data) % 4):
-        raise IncorrectDataSize('INT4')
+        raise exceptions.IncorrectDataSize('INT4')
     return struct.unpack('>%dl' % (len(data)/4), data)
 
 def _int_to_real(num):
@@ -228,7 +203,7 @@ def _parse_real8(data):
         IncorrectDataSize: REAL8
     """
     if not len(data) or (len(data) % 8):
-        raise IncorrectDataSize('REAL8')
+        raise exceptions.IncorrectDataSize('REAL8')
     ints = struct.unpack('>%dQ' % (len(data)/8), data)
     return tuple(_int_to_real(n) for n in ints)
 
@@ -246,7 +221,7 @@ def _parse_ascii(data):
         True
     """
     if not len(data):
-        raise IncorrectDataSize('ASCII')
+        raise exceptions.IncorrectDataSize('ASCII')
     # XXX cross-version compatibility
     if data[-1:] == b'\0':
         return data[:-1]
@@ -363,7 +338,7 @@ def _real_to_int(fnum):
         ieee_mant_comp = ieee_mant_comp >> (exp16_biased * 4)
         exp16_biased = 0
     elif exp16_biased > 0x7f:
-        raise FormatError('number is to big for REAL8')
+        raise exceptions.FormatError('number is to big for REAL8')
 
     return sign | (exp16_biased << 56) | ieee_mant_comp
 
@@ -478,7 +453,7 @@ class RecordData(object):
             MissingRecord: Wanted: 3586, got: STRNAME
         """
         if self._tag != tag:
-            raise MissingRecord('Wanted: %s, got: %s'%(tag, self.tag_name))
+            raise exceptions.MissingRecord('Wanted: %s, got: %s'%(tag, self.tag_name))
 
     def check_size(self, size):
         """
@@ -493,7 +468,7 @@ class RecordData(object):
             DataSizeError: 3586
         """
         if len(self._data) != size:
-            raise DataSizeError(self._tag)
+            raise exceptions.DataSizeError(self._tag)
 
     @classmethod
     def read(cls, stream):
@@ -510,7 +485,7 @@ class RecordData(object):
         try:
             parse_func = _PARSE_FUNCS[tag_type]
         except KeyError:
-            raise UnsupportedTagType(tag_type)
+            raise exceptions.UnsupportedTagType(tag_type)
         return cls(tag, parse_func(data))
 
     def save(self, stream):
@@ -526,11 +501,11 @@ class RecordData(object):
         try:
             pack_func = _PACK_FUNCS[tag_type]
         except KeyError:
-            raise UnsupportedTagType(tag_type)
+            raise exceptions.UnsupportedTagType(tag_type)
         packed_data = pack_func(self._data)
         record_size = len(packed_data) + 4
         if record_size > 0xFFFF:
-            raise FormatError('data size is too big')
+            raise exceptions.FormatError('data size is too big')
         header = struct.pack('>HH', record_size, self._tag)
         stream.write(header)
         stream.write(packed_data)
@@ -588,7 +563,7 @@ class RecordData(object):
         """
         data_size = len(self._data)
         if not data_size or (data_size % 2):
-            raise DataSizeError(self._tag)
+            raise exceptions.DataSizeError(self._tag)
         return [(self._data[i], self._data[i+1]) for i in range(0, data_size, 2)]
 
     @property
@@ -609,7 +584,7 @@ class RecordData(object):
             DataSizeError: 258
         """
         if len(self._data) != 12:
-            raise DataSizeError(self._tag)
+            raise exceptions.DataSizeError(self._tag)
         return (datetime(self._data[0]+1900, *self._data[1:6]),
                 datetime(self._data[6]+1900, *self._data[7:12]))
 
@@ -629,7 +604,7 @@ class RecordData(object):
             DataSizeError: 15106
         """
         if len(self._data) % 3:
-            raise DataSizeError(self._tag)
+            raise exceptions.DataSizeError(self._tag)
         return list(zip(self._data[::3], self.data[1::3], self.data[2::3]))
 
 def all_records(stream):

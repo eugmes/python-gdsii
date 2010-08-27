@@ -39,7 +39,7 @@
         +-------------------+-------------------+
 """
 from __future__ import absolute_import
-from . import tags, FormatError, RecordData, _records
+from . import tags, exceptions, RecordData, _records
 
 __all__ = (
     'Boundary',
@@ -98,7 +98,7 @@ class _Base(object):
         """
         element_class = cls._tag_to_class_map[recs.current.tag]
         if not element_class:
-            raise FormatError('unexpected element tag')
+            raise exceptions.FormatError('unexpected element tag')
         # do not call __init__() during reading from file
         # __init__() should require some arguments
         new_element = element_class._read_element(recs)

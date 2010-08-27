@@ -1,5 +1,5 @@
 import unittest
-from gdsii import _parse_real8, _pack_real8, _int_to_real, _real_to_int, IncorrectDataSize
+from gdsii import _parse_real8, _pack_real8, _int_to_real, _real_to_int, exceptions
 import struct
 
 class TestReal8(unittest.TestCase):
@@ -50,7 +50,7 @@ class TestReal8(unittest.TestCase):
 
     def test_exceptions(self):
         for i in range(8):
-            self.assertRaises(IncorrectDataSize, _parse_real8, b' '*i)
+            self.assertRaises(exceptions.IncorrectDataSize, _parse_real8, b' '*i)
 
 test_cases = (TestReal8,)
 

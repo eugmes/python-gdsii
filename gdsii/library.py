@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, _utils, _records, FormatError, RecordData
+from . import tags, exceptions, _utils, _records, RecordData
 from .structure import Structure
 
 _HEADER = _records.SimpleRecord('version', tags.HEADER,
@@ -70,7 +70,7 @@ class Library(object):
             elif rec.tag == tags.ENDLIB:
                 break
             else:
-                raise FormatError('unexpected tag where BGNSTR or ENDLIB are expected: %d', rec.tag)
+                raise exceptions.FormatError('unexpected tag where BGNSTR or ENDLIB are expected: %d', rec.tag)
 
     def save(self, stream):
         for obj in self._gds_objs:
