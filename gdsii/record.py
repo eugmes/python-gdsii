@@ -562,6 +562,17 @@ class Record(object):
                 last = True
             yield rec
 
+class Reader(object):
+    """Class for buffered reading of Records"""
+    __slots__  = ('current', 'stream')
+
+    def __init__(self, stream):
+        self.stream = stream
+
+    def read_next(self):
+        self.current = Record.read(self.stream)
+        return self.current
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

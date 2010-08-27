@@ -77,7 +77,7 @@ class SimpleRecord(AbstractRecord):
         rec.check_tag(self.gds_record)
         rec.check_size(1)
         setattr(instance, self.priv_variable, rec.data[0])
-        next(gen)
+        gen.read_next()
 
     def save(self, instance, stream):
         record.Record(self.gds_record, (getattr(instance, self.priv_variable),)).save(stream)
@@ -94,7 +94,7 @@ class SimpleOptionalRecord(SimpleRecord):
     def read(self, instance, gen):
         rec = gen.current
         if rec.tag == self.gds_record:
-            next(gen)
+            gen.read_next()
             self.optional_read(instance, gen, rec)
 
     def save(self, instance, stream):
@@ -119,10 +119,10 @@ class PropertiesRecord(AbstractRecord):
         while rec.tag == tags.PROPATTR:
             rec.check_size(1)
             propattr = rec.data[0]
-            rec = next(gen)
+            rec = gen.read_next()
             rec.check_tag(tags.PROPVALUE)
             props.append((propattr, rec.data))
-            rec = next(gen)
+            rec = gen.read_next()
         setattr(instance, self.priv_variable, props)
 
     def save(self, instance, stream):
@@ -136,7 +136,7 @@ class XYRecord(SimpleRecord):
         rec = gen.current
         rec.check_tag(self.gds_record)
         setattr(instance, self.priv_variable, rec.points)
-        next(gen)
+        gen.read_next()
 
     def save(self, instance, stream):
         pts = getattr(instance, self.priv_variable)
@@ -147,7 +147,7 @@ class StringRecord(SimpleRecord):
         rec = gen.current
         rec.check_tag(self.gds_record)
         setattr(instance, self.priv_variable, rec.data)
-        next(gen)
+        gen.read_next()
 
     def save(self, instance, stream):
         record.Record(self.gds_record, getattr(instance, self.priv_variable)).save(stream)
@@ -169,7 +169,7 @@ class ColRowRecord(AbstractRecord, SecondVar):
         cols, rows = rec.data
         setattr(instance, self.priv_variable, cols)
         setattr(instance, self.priv_variable2, rows)
-        next(gen)
+        gen.read_next()
 
     def save(self, instance, stream):
         col = getattr(instance, self.priv_variable)
@@ -192,7 +192,7 @@ class TimestampsRecord(SimpleRecord, SecondVar):
         mod_time, acc_time = rec.times
         setattr(instance, self.priv_variable, mod_time)
         setattr(instance, self.priv_variable2, acc_time)
-        next(gen)
+        gen.read_next()
 
     def save(self, instance, stream):
         mod_time = getattr(instance, self.priv_variable)
@@ -249,10 +249,10 @@ class FormatRecord(SimpleOptionalRecord, SecondVar):
             masks = []
             while cur_rec.tag == tags.MASK:
                 masks.append(cur_rec.data)
-                cur_rec = next(gen)
+                cur_rec = gen.read_next()
             cur_rec.check_tag(tags.ENDMASKS)
             setattr(instance, self.priv_variable2, masks)
-            next(gen)
+            gen.read_next()
 
     def save(self, instance, stream):
         fmt = getattr(instance, self.priv_variable, None)
@@ -281,7 +281,7 @@ class UnitsRecord(SimpleRecord, SecondVar):
         unit1, unit2 = rec.data
         setattr(instance, self.priv_variable, unit1)
         setattr(instance, self.priv_variable2, unit2)
-        next(gen)
+        gen.read_next()
 
     def save(self, instance, stream):
         unit1 = getattr(instance, self.priv_variable)

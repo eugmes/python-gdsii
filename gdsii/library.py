@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import exceptions, record, structure, tags, _records, _utils
+from . import exceptions, record, structure, tags, _records
 
 _HEADER = _records.SimpleRecord('version', tags.HEADER,
 """ GDSII file verion.
@@ -53,21 +53,15 @@ class Library(object):
             _FONTS, _ATTRTABLE, _GENERATIONS, _FORMAT, _UNITS)
 
     @classmethod
-    def load(cls, stream=None, itr=None):
-        """Load structure using file or iterable."""
+    def load(cls, stream):
+        """Load structure from stream."""
         self = cls.__new__(cls)
 
-        if stream is not None:
-            unbuf_gen = record.Record.iterate(stream)
-            gen = _utils.BufferedIterator(unbuf_gen)
-        elif itr is not None:
-            gen = _utils.BufferedIterator(itr)
-        else:
-            raise TypeError('load() requires stream or gen argument')
+        gen = record.Reader(stream)
 
         self._structures = []
 
-        next(gen)
+        gen.read_next()
         for obj in self._gds_objs:
             obj.read(self, gen)
 
@@ -76,7 +70,7 @@ class Library(object):
         while True:
             if rec.tag == tags.BGNSTR:
                 self._structures.append(structure.Structure._load(gen))
-                rec = next(gen)
+                rec = gen.read_next()
             elif rec.tag == tags.ENDLIB:
                 break
             else:

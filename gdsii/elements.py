@@ -108,11 +108,11 @@ class _Base(object):
     def _read_element(cls, gen):
         """Read element using `gen` generator."""
         self = cls.__new__(cls)
-        next(gen)
+        gen.read_next()
         for obj in self._gds_objs:
             obj.read(self, gen)
         gen.current.check_tag(tags.ENDEL)
-        next(gen)
+        gen.read_next()
         return self
 
     def _save(self, stream):
