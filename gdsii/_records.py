@@ -133,6 +133,20 @@ class StringRecord(SimpleRecord):
     def save(self, instance, stream):
         RecordData(self.gds_record, getattr(instance, self.priv_variable)).save(stream)
 
+class OptionalStringRecord(SimpleOptionalRecord):
+    def read(self, instance, gen):
+        rec = gen.current
+        if rec.tag == self.gds_record:
+            setattr(instance, self.priv_variable, rec.data)
+
+    def save(self, instance, stream):
+        try:
+            value = getattr(instance, self.priv_variable)
+        except AttributeError:
+            value = None
+        if value is not None:
+            RecordData(self.gds_record, value).save(stream)
+
 class ColRowRecord(AbstractRecord):
     def __init__(self, variable1, variable2, doc1, doc2):
         AbstractRecord.__init__(self, variable1, doc1)
