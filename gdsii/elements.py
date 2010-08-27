@@ -81,7 +81,7 @@ _PROPERTIES = _records.PropertiesRecord('properties',
     Type of propattr is int, propvalue is bytes.
 """)
 
-class ElementBase(object):
+class _Base(object):
     """Base class for all GDSII elements."""
 
     # dummy descriptors to silence pyckecker, should be set in derived classes
@@ -122,47 +122,47 @@ class ElementBase(object):
         RecordData(tags.ENDEL).save(stream)
 
 @_records.stream_class
-class Boundary(ElementBase):
+class Boundary(_Base):
     """Class for :const:`BOUNDARY` GDSII element."""
     _gds_tag = tags.BOUNDARY
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _DATATYPE, _XY, _PROPERTIES)
 
 @_records.stream_class
-class Path(ElementBase):
+class Path(_Base):
     """Class for :const:`PATH` GDSII element."""
     _gds_tag = tags.PATH
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _DATATYPE, _PATHTYPE, _WIDTH, _BGNEXTN, _ENDEXTN, _XY, _PROPERTIES)
 
 @_records.stream_class
-class SRef(ElementBase):
+class SRef(_Base):
     """Class for :const:`SREF` GDSII element."""
     _gds_tag = tags.SREF
     _gds_objs = (_ELFLAGS, _PLEX, _SNAME, _STRANS, _XY, _PROPERTIES)
 
 @_records.stream_class
-class ARef(ElementBase):
+class ARef(_Base):
     """Class for :const:`AREF` GDSII element."""
     _gds_tag = tags.AREF
     _gds_objs = (_ELFLAGS, _PLEX, _SNAME, _STRANS, _COLROW, _XY, _PROPERTIES)
 
 @_records.stream_class
-class Text(ElementBase):
+class Text(_Base):
     """Class for :const:`TEXT` GDSII element."""
     _gds_tag = tags.TEXT
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _TEXTTYPE, _PRESENTATION, _PATHTYPE, _WIDTH, _STRANS, _XY, _STRING, _PROPERTIES)
 
 @_records.stream_class
-class Node(ElementBase):
+class Node(_Base):
     """Class for :const:`NODE` GDSII element."""
     _gds_tag = tags.NODE
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _NODETYPE, _XY)
 
 @_records.stream_class
-class Box(ElementBase):
+class Box(_Base):
     """Class for :const:`BOX` GDSII element."""
     _gds_tag = tags.BOX
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _BOXTYPE, _XY, _PROPERTIES)
 
 _all_elements = (Boundary, Path, SRef, ARef, Text, Node, Box)
 
-ElementBase._tag_to_class_map = (lambda: dict(((cls._gds_tag, cls) for cls in _all_elements)))()
+_Base._tag_to_class_map = (lambda: dict(((cls._gds_tag, cls) for cls in _all_elements)))()

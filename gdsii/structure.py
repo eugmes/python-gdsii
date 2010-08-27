@@ -19,8 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, _records, RecordData
-from .elements import ElementBase
+from . import tags, elements, _records, RecordData
 
 _STRNAME = _records.StringRecord('name', tags.STRNAME, 'Structure name (bytes).')
 _BGNSTR = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,
@@ -41,7 +40,7 @@ class Structure(object):
 
         # read elements till ENDSTR
         while recs.current.tag != tags.ENDSTR:
-            self._elements.append(ElementBase.load(recs))
+            self._elements.append(elements._Base.load(recs))
 
     def save(self, stream):
         for obj in self._gds_objs:
