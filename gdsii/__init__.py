@@ -39,15 +39,6 @@ __all__ = [
     'all_records'
 ]
 
-# PYTHON3: can be simplified
-_TAG_TO_NAME_MAP = (lambda:
-    dict([(tags.__dict__[key], key) for key in dir(tags) if key[0] != '_'])
-)()
-
-_TYPE_TO_NAME_MAP = (lambda:
-    dict((types.__dict__[key], key) for key in dir(types) if key[0] != '_')
-)()
-
 def type_of_tag(tag):
     """
     Returns type of a tag.
@@ -518,8 +509,8 @@ class RecordData(object):
     @property
     def tag_name(self):
         """Tag name, if known, otherwise tag ID formatted as hex number."""
-        if self._tag in _TAG_TO_NAME_MAP:
-            return _TAG_TO_NAME_MAP[self._tag]
+        if self._tag in tags.REV_DICT:
+            return tags.REV_DICT[self._tag]
         return '0x%04x' % self._tag
 
     @property
@@ -531,8 +522,8 @@ class RecordData(object):
     def tag_type_name(self):
         """Tag data type name, if known, and formatted number otherwise."""
         tag_type = type_of_tag(self._tag)
-        if tag_type in _TYPE_TO_NAME_MAP:
-            return _TYPE_TO_NAME_MAP[tag_type]
+        if tag_type in types.REV_DICT:
+            return types.REV_DICT[tag_type]
         return '0x%02x' % tag_type
 
     @property
