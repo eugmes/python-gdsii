@@ -40,7 +40,7 @@
 """
 from __future__ import absolute_import
 from . import tags, FormatError, RecordData, _records
-from ._records import (SimpleRecord, SimpleOptionalRecord, OptionalFlagsRecord,
+from ._records import (SimpleRecord, SimpleOptionalRecord, OptionalWholeRecord,
         PropertiesRecord, XYRecord, StringRecord, ColRowRecord, STransRecord)
 
 __all__ = (
@@ -53,7 +53,7 @@ __all__ = (
     'Box'
 )
 
-elflags = OptionalFlagsRecord('elflags', tags.ELFLAGS, 'Element flags (bitfield).')
+elflags = OptionalWholeRecord('elflags', tags.ELFLAGS, 'Element flags (bitfield).')
 plex = SimpleOptionalRecord('plex', tags.PLEX, 'Plex (integer).')
 layer = SimpleRecord('layer', tags.LAYER, 'Layer (integer).')
 data_type = SimpleRecord('data_type', tags.DATATYPE, 'Data type (integer).')
@@ -66,7 +66,7 @@ struct_name = StringRecord('struct_name', tags.SNAME, 'Name of a referenced stru
 strans = STransRecord('strans', tags.STRANS, 'Transformation flags.')
 colrow = ColRowRecord('cols', 'rows', 'Number of columns (integer).', 'Number of rows (integer).')
 text_type = SimpleRecord('text_type', tags.TEXTTYPE, 'Text type (integer).')
-presentation = OptionalFlagsRecord('presentation', tags.PRESENTATION,
+presentation = OptionalWholeRecord('presentation', tags.PRESENTATION,
 """ Bit array that specifies how the text is presented (optional).
     Meaning of bits:
 

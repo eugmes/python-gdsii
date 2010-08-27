@@ -82,7 +82,8 @@ class SimpleOptionalRecord(SimpleRecord):
         if data is not None:
             RecordData(self.gds_record, (data,)).save(stream)
 
-class OptionalFlagsRecord(SimpleOptionalRecord):
+class OptionalWholeRecord(SimpleOptionalRecord):
+    """Class for records that need to store all data (not data[0])."""
     def optional_read(self, instance, gen, rec):
         setattr(instance, self.priv_variable, rec.data)
 
@@ -130,15 +131,6 @@ class StringRecord(SimpleRecord):
 
     def save(self, instance, stream):
         RecordData(self.gds_record, getattr(instance, self.priv_variable)).save(stream)
-
-class OptionalStringRecord(SimpleOptionalRecord):
-    def optional_read(self, instance, gen, rec):
-        setattr(instance, self.priv_variable, rec.data)
-
-    def save(self, instance, stream):
-        value = getattr(instance, self.priv_variable, None)
-        if value is not None:
-            RecordData(self.gds_record, value).save(stream)
 
 class ColRowRecord(AbstractRecord):
     def __init__(self, variable1, variable2, doc1, doc2):
@@ -211,14 +203,14 @@ class TimestampsRecord(SimpleRecord):
         acc_time = getattr(instance, self.priv_variable2)
         RecordData(self.gds_record, times=(mod_time, acc_time)).save(stream)
 
-class STransRecord(OptionalFlagsRecord):
+class STransRecord(OptionalWholeRecord):
     mag = SimpleOptionalRecord('mag', tags.MAG, 'Magnification (real, optional).')
     angle = SimpleOptionalRecord('angle', tags.ANGLE, 'Rotation angle (real, optional).')
 
     def props(self):
         res = dict(list(self.mag.props().items()) +
                 list(self.angle.props().items()) +
-                list(OptionalFlagsRecord.props(self).items()))
+                list(OptionalWholeRecord.props(self).items()))
         return res
 
     def optional_read(self, instance, gen, rec):
@@ -229,7 +221,7 @@ class STransRecord(OptionalFlagsRecord):
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
         if data is not None:
-            OptionalFlagsRecord.save(self, instance, stream)
+            OptionalWholeRecord.save(self, instance, stream)
             self.mag.save(instance, stream)
             self.angle.save(instance, stream)
 
