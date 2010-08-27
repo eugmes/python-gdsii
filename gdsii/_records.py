@@ -264,6 +264,30 @@ class FormatRecord(SimpleOptionalRecord, SecondVar):
                     RecordData(tags.MASK, mask).save(stream)
                 RecordData(tags.ENDMASKS).save(stream)
 
+class UnitsRecord(SimpleRecord, SecondVar):
+    def __init__(self, variable1, variable2, gds_record, doc1, doc2):
+        SimpleRecord.__init__(self, variable1, gds_record, doc1)
+        SecondVar.__init__(self, variable2, doc2)
+
+    def props(self):
+        res = SimpleRecord.props(self)
+        res[self.variable2] = self.property2()
+        return res
+
+    def read(self, instance, gen):
+        rec = gen.current
+        rec.check_tag(self.gds_record)
+        rec.check_size(2)
+        unit1, unit2 = rec.data
+        setattr(instance, self.priv_variable, unit1)
+        setattr(instance, self.priv_variable2, unit2)
+        next(gen)
+
+    def write(self, instance, stream):
+        unit1 = getattr(instance, self.priv_variable)
+        unit2 = getattr(instance, self.priv_variable2)
+        RecordData(self.gds_record, [unit1, unit2]).write(stream)
+
 def stream_class(cls):
     """
     Decorator for classes that can be read and written to a GDSII stream.
