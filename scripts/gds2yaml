@@ -1,7 +1,7 @@
 #! /usr/bin/python
 """Demonstration program for pygdsii basic reading function."""
 from __future__ import print_function
-from gdsii import RecordData
+from gdsii.record import Record
 from gdsii.library import Library
 from gdsii import elements
 import sys
@@ -199,7 +199,7 @@ def dump_library(dumper, lib):
 
 def main(name):
     with open(name, 'rb') as a_file:
-        lib = Library(RecordData.iterate(a_file))
+        lib = Library(Record.iterate(a_file))
     dumper = Dumper(sys.stdout)
     dump_library(dumper, lib)
 

@@ -1,7 +1,8 @@
 #! /usr/bin/python
 """Demonstration program for pygdsii basic reading function."""
 from __future__ import print_function
-from gdsii import types, RecordData
+from gdsii import types
+from gdsii.record import Record
 import sys
 
 def show_data(rec):
@@ -14,7 +15,7 @@ def show_data(rec):
 
 def main(name):
     with open(name, 'rb') as a_file:
-        for rec in RecordData.iterate(a_file):
+        for rec in Record.iterate(a_file):
             if rec.tag_type == types.NODATA:
                 print(rec.tag_name)
             else:

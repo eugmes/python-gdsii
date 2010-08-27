@@ -15,7 +15,7 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
-from . import tags, RecordData
+from . import tags, record
 
 class AbstractRecord(object):
     def __init__(self, variable, doc):
@@ -80,7 +80,7 @@ class SimpleRecord(AbstractRecord):
         next(gen)
 
     def save(self, instance, stream):
-        RecordData(self.gds_record, (getattr(instance, self.priv_variable),)).save(stream)
+        record.Record(self.gds_record, (getattr(instance, self.priv_variable),)).save(stream)
 
 class SimpleOptionalRecord(SimpleRecord):
     def optional_read(self, instance, unused_gen, rec):
@@ -100,7 +100,7 @@ class SimpleOptionalRecord(SimpleRecord):
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
         if data is not None:
-            RecordData(self.gds_record, (data,)).save(stream)
+            record.Record(self.gds_record, (data,)).save(stream)
 
 class OptionalWholeRecord(SimpleOptionalRecord):
     """Class for records that need to store all data (not data[0])."""
@@ -110,7 +110,7 @@ class OptionalWholeRecord(SimpleOptionalRecord):
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
         if data is not None:
-            RecordData(self.gds_record, data).save(stream)
+            record.Record(self.gds_record, data).save(stream)
 
 class PropertiesRecord(AbstractRecord):
     def read(self, instance, gen):
@@ -128,8 +128,8 @@ class PropertiesRecord(AbstractRecord):
     def save(self, instance, stream):
         props = getattr(instance, self.priv_variable)
         for (propattr, propvalue) in props:
-            RecordData(tags.PROPATTR, (propattr,)).save(stream)
-            RecordData(tags.PROPVALUE, propvalue).save(stream)
+            record.Record(tags.PROPATTR, (propattr,)).save(stream)
+            record.Record(tags.PROPVALUE, propvalue).save(stream)
 
 class XYRecord(SimpleRecord):
     def read(self, instance, gen):
@@ -140,7 +140,7 @@ class XYRecord(SimpleRecord):
 
     def save(self, instance, stream):
         pts = getattr(instance, self.priv_variable)
-        RecordData(self.gds_record, points=pts).save(stream)
+        record.Record(self.gds_record, points=pts).save(stream)
 
 class StringRecord(SimpleRecord):
     def read(self, instance, gen):
@@ -150,7 +150,7 @@ class StringRecord(SimpleRecord):
         next(gen)
 
     def save(self, instance, stream):
-        RecordData(self.gds_record, getattr(instance, self.priv_variable)).save(stream)
+        record.Record(self.gds_record, getattr(instance, self.priv_variable)).save(stream)
 
 class ColRowRecord(AbstractRecord, SecondVar):
     def __init__(self, variable1, variable2, doc1, doc2):
@@ -174,7 +174,7 @@ class ColRowRecord(AbstractRecord, SecondVar):
     def save(self, instance, stream):
         col = getattr(instance, self.priv_variable)
         row = getattr(instance, self.priv_variable2)
-        RecordData(tags.COLROW, (col, row)).save(stream)
+        record.Record(tags.COLROW, (col, row)).save(stream)
 
 class TimestampsRecord(SimpleRecord, SecondVar):
     def __init__(self, variable1, variable2, gds_record, doc1, doc2):
@@ -197,7 +197,7 @@ class TimestampsRecord(SimpleRecord, SecondVar):
     def save(self, instance, stream):
         mod_time = getattr(instance, self.priv_variable)
         acc_time = getattr(instance, self.priv_variable2)
-        RecordData(self.gds_record, times=(mod_time, acc_time)).save(stream)
+        record.Record(self.gds_record, times=(mod_time, acc_time)).save(stream)
 
 class STransRecord(OptionalWholeRecord):
     mag = SimpleOptionalRecord('mag', tags.MAG, 'Magnification (real, optional).')
@@ -228,7 +228,7 @@ class ACLRecord(SimpleOptionalRecord):
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
         if data:
-            RecordData(self.gds_record, acls=data).save(stream)
+            record.Record(self.gds_record, acls=data).save(stream)
 
 class FormatRecord(SimpleOptionalRecord, SecondVar):
     def __init__(self, variable1, variable2, gds_record, doc1, doc2):
@@ -261,8 +261,8 @@ class FormatRecord(SimpleOptionalRecord, SecondVar):
             if fmt == 1 or fmt == 3:
                 masks = getattr(instance, self.priv_variable2, [])
                 for mask in masks:
-                    RecordData(tags.MASK, mask).save(stream)
-                RecordData(tags.ENDMASKS).save(stream)
+                    record.Record(tags.MASK, mask).save(stream)
+                record.Record(tags.ENDMASKS).save(stream)
 
 class UnitsRecord(SimpleRecord, SecondVar):
     def __init__(self, variable1, variable2, gds_record, doc1, doc2):
@@ -286,7 +286,7 @@ class UnitsRecord(SimpleRecord, SecondVar):
     def save(self, instance, stream):
         unit1 = getattr(instance, self.priv_variable)
         unit2 = getattr(instance, self.priv_variable2)
-        RecordData(self.gds_record, (unit1, unit2)).save(stream)
+        record.Record(self.gds_record, (unit1, unit2)).save(stream)
 
 def stream_class(cls):
     """

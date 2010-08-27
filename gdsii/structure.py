@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, elements, _records, RecordData
+from . import tags, elements, record, _records
 
 _STRNAME = _records.StringRecord('name', tags.STRNAME, 'Structure name (bytes).')
 _BGNSTR = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,
@@ -47,7 +47,7 @@ class Structure(object):
             obj.save(self, stream)
         for elem in self._elements:
             elem.save(stream)
-        RecordData(tags.ENDSTR).save(stream)
+        record.Record(tags.ENDSTR).save(stream)
 
     @property
     def elements(self):

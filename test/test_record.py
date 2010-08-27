@@ -1,5 +1,6 @@
 import unittest
-from gdsii import _parse_real8, _pack_real8, _int_to_real, _real_to_int, exceptions
+from gdsii.record import _parse_real8, _pack_real8, _int_to_real, _real_to_int
+from gdsii import exceptions
 import struct
 
 class TestReal8(unittest.TestCase):

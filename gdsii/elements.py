@@ -39,7 +39,7 @@
         +-------------------+-------------------+
 """
 from __future__ import absolute_import
-from . import tags, exceptions, RecordData, _records
+from . import tags, exceptions, record, _records
 
 __all__ = (
     'Boundary',
@@ -93,7 +93,7 @@ class _Base(object):
         """
         Load an element from file using given generator `recs`.
 
-        :param recs: :class:`pygdsii.RecordData` generator
+        :param recs: :class:`pygdsii.record.Record` generator
         :returns: new element of class defined by `recs`
         """
         element_class = cls._tag_to_class_map[recs.current.tag]
@@ -116,10 +116,10 @@ class _Base(object):
         return self
 
     def save(self, stream):
-        RecordData(self._gds_tag).save(stream)
+        record.Record(self._gds_tag).save(stream)
         for obj in self._gds_objs:
             obj.save(self, stream)
-        RecordData(tags.ENDEL).save(stream)
+        record.Record(tags.ENDEL).save(stream)
 
 @_records.stream_class
 class Boundary(_Base):

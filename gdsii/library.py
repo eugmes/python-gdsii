@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, exceptions, _utils, _records, RecordData
+from . import tags, exceptions, record, _utils, _records
 from .structure import Structure
 
 _HEADER = _records.SimpleRecord('version', tags.HEADER,
@@ -77,7 +77,7 @@ class Library(object):
             obj.save(self, stream)
         for struc in self._structures:
             struc.save(stream)
-        RecordData(tags.ENDLIB).save(stream)
+        record.Record(tags.ENDLIB).save(stream)
 
     @property
     def structures(self):
