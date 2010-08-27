@@ -84,6 +84,10 @@ _PROPERTIES = _records.PropertiesRecord('properties',
 class ElementBase(object):
     """Base class for all GDSII elements."""
 
+    # dummy descriptors to silence pyckecker, should be set in derived classes
+    _gds_tag = None
+    _gds_objs = None
+
     @classmethod
     def load(cls, recs):
         """
