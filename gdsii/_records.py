@@ -232,7 +232,7 @@ class ACLRecord(SimpleOptionalRecord):
     def save(self, instance, stream):
         data = getattr(instance, self.priv_variable, None)
         if data:
-            RecordData(self.gds_record, acls=data)
+            RecordData(self.gds_record, acls=data).save(stream)
 
 def stream_class(cls):
     """
