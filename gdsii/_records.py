@@ -235,6 +235,18 @@ class STransRecord(OptionalFlagsRecord):
             self.mag.save(instance, stream)
             self.angle.save(instance, stream)
 
+class ACLRecord(SimpleOptionalRecord):
+    def read(self, instance, gen):
+        rec = gen.current
+        if rec.tag == self.gdsii_record:
+            setattr(instance, self.priv_variable, rec.acls)
+            next(gen)
+
+    def save(self, instance, stream):
+        data = getattr(instance, self.priv_variable, None)
+        if data:
+            RecordData(self.gds_record, acls=data)
+
 def stream_class(cls):
     """
     Decorator for classes that can be read and written to a GDSII stream.
