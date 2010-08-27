@@ -19,7 +19,7 @@
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 from __future__ import absolute_import
-from . import tags, _utils, _records, FormatError, _ignore_record, RecordData
+from . import tags, _utils, _records, FormatError, RecordData
 from .structure import Structure
 
 _HEADER = _records.SimpleRecord('version', tags.HEADER,

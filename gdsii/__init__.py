@@ -646,20 +646,6 @@ def all_records(stream):
             last = True
         yield rec
 
-def _ignore_record(recs, lastrec, tag):
-    """
-    Returns next record is `lastrec` has given tag,
-    otherwise returns `lastrec`.
-
-    :param recs: :class:`RecordData` generator
-    :type recs: iterable
-    :param lastrec: last read record
-    :type lastrec: :class:`RecordData`
-    """
-    if lastrec.tag != tag:
-        return lastrec
-    return next(recs)
-
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
