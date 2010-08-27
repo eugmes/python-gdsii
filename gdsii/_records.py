@@ -257,7 +257,7 @@ class FormatRecord(SimpleOptionalRecord, SecondVar):
     def write(self, instance, stream):
         fmt = getattr(instance, self.priv_variable, None)
         if fmt is not None:
-            SimpleOptionalRecord.write(self, instance, stream)
+            SimpleOptionalRecord.save(self, instance, stream)
             if fmt == 1 or fmt == 3:
                 masks = getattr(instance, self.priv_variable2, [])
                 for mask in masks:
