@@ -328,24 +328,24 @@ class Record(object):
         >>> r.tag_type_name
         '0xff'
     """
-    __slots__ = ['_tag', '_data']
+    __slots__ = ['tag', 'data']
 
     def __init__(self, tag, data=None, points=None, times=None, acls=None):
         """Initialize with tag and parsed data."""
-        self._tag = tag
+        self.tag = tag
         if data is not None:
-            self._data = data
+            self.data = data
         elif points is not None:
             new_data = []
             # TODO make it faster
             for point in points:
                 new_data.append(point[0])
                 new_data.append(point[1])
-            self._data = new_data
+            self.data = new_data
         elif times is not None:
             mod_time = times[0]
             acc_time = times[1]
-            self._data = (
+            self.data = (
                 mod_time.year - 1900,
                 mod_time.month,
                 mod_time.day,
@@ -363,9 +363,9 @@ class Record(object):
             new_data = []
             for acl in acls:
                 new_data.extend(acl)
-            self._data = new_data
+            self.data = new_data
         else:
-            self._data = None
+            self.data = None
 
     def check_tag(self, tag):
         """
@@ -379,7 +379,7 @@ class Record(object):
                 ...
             MissingRecord: Wanted: 3586, got: STRNAME
         """
-        if self._tag != tag:
+        if self.tag != tag:
             raise exceptions.MissingRecord('Wanted: %s, got: %s'%(tag, self.tag_name))
 
     def check_size(self, size):
@@ -394,8 +394,8 @@ class Record(object):
                 ...
             DataSizeError: 3586
         """
-        if len(self._data) != size:
-            raise exceptions.DataSizeError(self._tag)
+        if len(self.data) != size:
+            raise exceptions.DataSizeError(self.tag)
 
     @classmethod
     def read(cls, stream):
@@ -443,43 +443,33 @@ class Record(object):
             pack_func = _PACK_FUNCS[tag_type]
         except KeyError:
             raise exceptions.UnsupportedTagType(tag_type)
-        packed_data = pack_func(self._data)
+        packed_data = pack_func(self.data)
         record_size = len(packed_data) + 4
         if record_size > 0xFFFF:
             raise exceptions.FormatError('data size is too big')
-        header = _RECORD_HEADER_FMT.pack(record_size, self._tag)
+        header = _RECORD_HEADER_FMT.pack(record_size, self.tag)
         stream.write(header)
         stream.write(packed_data)
 
     @property
-    def tag(self):
-        """Tag ID."""
-        return self._tag
-
-    @property
     def tag_name(self):
         """Tag name, if known, otherwise tag ID formatted as hex number."""
-        if self._tag in tags.REV_DICT:
-            return tags.REV_DICT[self._tag]
-        return '0x%04x' % self._tag
+        if self.tag in tags.REV_DICT:
+            return tags.REV_DICT[self.tag]
+        return '0x%04x' % self.tag
 
     @property
     def tag_type(self):
         """Tag data type ID."""
-        return tags.type_of_tag(self._tag)
+        return tags.type_of_tag(self.tag)
 
     @property
     def tag_type_name(self):
         """Tag data type name, if known, and formatted number otherwise."""
-        tag_type = tags.type_of_tag(self._tag)
+        tag_type = tags.type_of_tag(self.tag)
         if tag_type in types.REV_DICT:
             return types.REV_DICT[tag_type]
         return '0x%02x' % tag_type
-
-    @property
-    def data(self):
-        """Parsed data."""
-        return self._data
 
     @property
     def points(self):
@@ -502,10 +492,10 @@ class Record(object):
                 ...
             DataSizeError: 4099
         """
-        data_size = len(self._data)
+        data_size = len(self.data)
         if not data_size or (data_size % 2):
-            raise exceptions.DataSizeError(self._tag)
-        return [(self._data[i], self._data[i+1]) for i in range(0, data_size, 2)]
+            raise exceptions.DataSizeError(self.tag)
+        return [(self.data[i], self.data[i+1]) for i in range(0, data_size, 2)]
 
     @property
     def times(self):
@@ -524,10 +514,10 @@ class Record(object):
                 ...
             DataSizeError: 258
         """
-        if len(self._data) != 12:
-            raise exceptions.DataSizeError(self._tag)
-        return (datetime(self._data[0]+1900, *self._data[1:6]),
-                datetime(self._data[6]+1900, *self._data[7:12]))
+        if len(self.data) != 12:
+            raise exceptions.DataSizeError(self.tag)
+        return (datetime(self.data[0]+1900, *self.data[1:6]),
+                datetime(self.data[6]+1900, *self.data[7:12]))
 
     @property
     def acls(self):
@@ -544,9 +534,9 @@ class Record(object):
                 ...
             DataSizeError: 15106
         """
-        if len(self._data) % 3:
-            raise exceptions.DataSizeError(self._tag)
-        return list(zip(self._data[::3], self.data[1::3], self.data[2::3]))
+        if len(self.data) % 3:
+            raise exceptions.DataSizeError(self.tag)
+        return list(zip(self.data[::3], self.data[1::3], self.data[2::3]))
 
     @classmethod
     def iterate(cls, stream):
