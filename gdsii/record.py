@@ -22,6 +22,7 @@ import struct
 
 __all__ = [
     'Record',
+    'Reader'
 ]
 
 _RECORD_HEADER_FMT = struct.Struct('>HH')
