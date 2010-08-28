@@ -162,19 +162,23 @@ def dump_element(dumper, elem):
 name = simple_string_dumper('name')
 mod_time = timestamp_dumper('mod_time')
 acc_time = timestamp_dumper('acc_time')
-physical_unit = simple_dumper('physical_unit', FLOAT)
-logical_unit = simple_dumper('logical_unit', FLOAT)
+strclass = optional_dumper('strclass', INT)
 
 def dump_structure(dumper, struc):
     dumper.emit(events.MappingStartEvent(None, STRUCTURE, False))
     name(dumper, struc)
     mod_time(dumper, struc)
     acc_time(dumper, struc)
+    strclass(dumper, struc)
     start_named_seq(dumper, 'elements')
     for elem in struc.elements:
         dump_element(dumper, elem)
     end_named_seq(dumper)
     dumper.emit(events.MappingEndEvent())
+
+physical_unit = simple_dumper('physical_unit', FLOAT)
+logical_unit = simple_dumper('logical_unit', FLOAT)
+libdirsize = optional_dumper('libdirsize', INT)
 
 def dump_library(dumper, lib):
     dumper.emit(events.StreamStartEvent(encoding='utf-8'))
@@ -185,6 +189,8 @@ def dump_library(dumper, lib):
     name(dumper, lib)
     mod_time(dumper, lib)
     acc_time(dumper, lib)
+    libdirsize(dumper, lib)
+    # TODO
     physical_unit(dumper, lib)
     logical_unit(dumper, lib)
     start_named_seq(dumper, 'structures')
