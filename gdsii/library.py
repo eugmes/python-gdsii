@@ -15,8 +15,12 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-    GDSII library object-oriented interface
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:mod:`gdsii.library` --- interface to a GDSII library
+=====================================================
+
+This module contains class that represents a GDSII library.
+
+.. moduleauthor:: Eugeniy Meshcheryakov <eugen@debian.org>
 """
 from __future__ import absolute_import
 from . import exceptions, record, structure, tags, _records
@@ -42,12 +46,26 @@ _FORMAT = _records.FormatRecord('format', 'masks', tags.FORMAT, None, None)
 _UNITS = _records.UnitsRecord('logical_unit', 'physical_unit', tags.UNITS, None, None)
 
 class Library(list):
-    """GDSII library class.
+    """
+    GDSII library class. This class is derived from :class:`list` and can contain
+    one ore more instances of :class:`gdsii.structure.Structure`.
 
-    GDS Syntax:
-
-          HEADER BGNLIB [LIBDIRSIZE] [SRFNAME] [LIBSECUR] LIBNAME [REFLIBS]
-          [FONTS] [ATTRTABLE] [GENERATIONS] [<format>] UNITS {<structure>}* ENDLIB
+    GDS syntax for the library:
+        .. productionlist::
+            library: HEADER
+                   : BGNLIB
+                   : [LIBDIRSIZE]
+                   : [SRFNAME]
+                   : [LIBSECUR]
+                   : LIBNAME
+                   : [REFLIBS]
+                   : [FONTS]
+                   : [ATTRTABLE]
+                   : [GENERATIONS]
+                   : [`format`]
+                   : UNITS
+                   : {`structure`}*
+                   : ENDLIB
     """
     _gds_objs = (_HEADER, _BGNLIB, _LIBDIRSIZE, _SRFNAME, _LIBSECUR, _LIBNAME, _REFLIBS,
             _FONTS, _ATTRTABLE, _GENERATIONS, _FORMAT, _UNITS)
@@ -55,6 +73,10 @@ class Library(list):
     def __init__(self, version, name, physical_unit, logical_unit, mod_time=None,
             acc_time=None, libdirsize=None, srfname=None, acls=None, reflibs=None,
             fonts=None, attrtable=None, generations=None, format=None, masks=None):
+        """
+        Initialize the library.
+        `mod_time` and `acc_time` are set to current UTC time by default.
+        """
         list.__init__(self)
         self.version = version
         self.name = name
@@ -74,7 +96,12 @@ class Library(list):
 
     @classmethod
     def load(cls, stream):
-        """Load structure from stream."""
+        """
+        Load a GDS library from a file.
+
+        :param stream: a :class:`file` or file-like object opened for reading in binary mode.
+        :returns: a new library.
+        """
         self = cls.__new__(cls)
         list.__init__(self)
 
@@ -97,6 +124,11 @@ class Library(list):
         return self
 
     def save(self, stream):
+        """
+        Save the library into a file.
+
+        :param stream: a :class:`file` or file-like object opened for writing in binary mode.
+        """
         for obj in self._gds_objs:
             obj.save(self, stream)
         for struc in self:
