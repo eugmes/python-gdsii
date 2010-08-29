@@ -20,6 +20,7 @@
 """
 from __future__ import absolute_import
 from . import exceptions, record, structure, tags, _records
+from datetime import datetime
 
 _HEADER = _records.SimpleRecord('version', tags.HEADER,
 """ GDSII file verion.
@@ -51,6 +52,26 @@ class Library(object):
     _gds_objs = (_HEADER, _BGNLIB, _LIBDIRSIZE, _SRFNAME, _LIBSECUR, _LIBNAME, _REFLIBS,
             _FONTS, _ATTRTABLE, _GENERATIONS, _FORMAT, _UNITS)
 
+    def __init__(self, version, name, physical_unit, logical_unit, mod_time=None,
+            acc_time=None, libdirsize=None, srfname=None, acls=None, reflibs=None,
+            fonts=None, attrtable=None, generations=None, format=None, masks=None):
+        self.version = version
+        self.name = name
+        self.physical_unit = physical_unit
+        self.logical_unit = logical_unit
+        self.mod_time = mod_time if mod_time is not None else datetime.utcnow()
+        self.acc_time = acc_time if acc_time is not None else datetime.utcnow()
+        self.libdirsize = libdirsize
+        self.srfname = srfname
+        self.acls = acls
+        self.reflibs = reflibs
+        self.fonts = fonts
+        self.attrtable = attrtable
+        self.generations = generations
+        self.format = format
+        self.masks = masks
+        self.structures = []
+
     @classmethod
     def load(cls, stream):
         """Load structure from stream."""
@@ -58,7 +79,7 @@ class Library(object):
 
         gen = record.Reader(stream)
 
-        self._structures = []
+        self.structures = []
 
         gen.read_next()
         for obj in self._gds_objs:
@@ -68,7 +89,7 @@ class Library(object):
         rec = gen.current
         while True:
             if rec.tag == tags.BGNSTR:
-                self._structures.append(structure.Structure._load(gen))
+                self.structures.append(structure.Structure._load(gen))
                 rec = gen.read_next()
             elif rec.tag == tags.ENDLIB:
                 break
@@ -79,14 +100,9 @@ class Library(object):
     def save(self, stream):
         for obj in self._gds_objs:
             obj.save(self, stream)
-        for struc in self._structures:
+        for struc in self.structures:
             struc._save(stream)
         record.Record(tags.ENDLIB).save(stream)
-
-    @property
-    def structures(self):
-        """List of structures in this library (:class:`pygdsii.structure.Structure`)."""
-        return self._structures
 
     def __str__(self):
         return '<Library: %s>' % self.name.decode()
