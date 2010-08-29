@@ -191,10 +191,8 @@ class FormatRecord(SimpleOptionalRecord, SecondVar):
 
     def optional_read(self, instance, gen, rec):
         SimpleOptionalRecord.optional_read(self, instance, gen, rec)
-        fmt = rec.data[0]
-        # MASKS are required for formats 1 and 3
-        if fmt == 1 or fmt == 3:
-            cur_rec = gen.curent
+        cur_rec = gen.curent
+        if cur_rec.tag == tags.MASK:
             masks = []
             while cur_rec.tag == tags.MASK:
                 masks.append(cur_rec.data)
@@ -207,8 +205,8 @@ class FormatRecord(SimpleOptionalRecord, SecondVar):
         fmt = getattr(instance, self.variable, None)
         if fmt is not None:
             SimpleOptionalRecord.save(self, instance, stream)
-            if fmt == 1 or fmt == 3:
-                masks = getattr(instance, self.variable2, [])
+            masks = getattr(instance, self.variable2, None)
+            if masks:
                 for mask in masks:
                     record.Record(tags.MASK, mask).save(stream)
                 record.Record(tags.ENDMASKS).save(stream)
