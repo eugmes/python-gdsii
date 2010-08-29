@@ -28,39 +28,36 @@ _BGNSTR = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,
 _STRCLASS = _records.SimpleOptionalRecord('strclass', tags.STRCLASS,
     'Structure class (int, optional).')
 
-class Structure(object):
+class Structure(list):
     """GDSII structure class."""
     _gds_objs = (_BGNSTR, _STRNAME, _STRCLASS)
 
     def __init__(self, name, mod_time=None, acc_time=None, strclass=None):
+        list.__init__(self)
         self.name = name
         self.mod_time = mod_time if mod_time is not None else datetime.utcnow()
         self.acc_time = acc_time if acc_time is not None else datetime.utcnow()
         self.strclass = strclass
-        self.elements = []
 
     @classmethod
     def _load(cls, gen):
         self = cls.__new__(cls)
-        self.elements = []
+        list.__init__(self)
 
         for obj in self._gds_objs:
             obj.read(self, gen)
 
         # read elements till ENDSTR
         while gen.current.tag != tags.ENDSTR:
-            self.elements.append(elements._Base._load(gen))
+            self.append(elements._Base._load(gen))
         return self
 
     def _save(self, stream):
         for obj in self._gds_objs:
             obj.save(self, stream)
-        for elem in self.elements:
+        for elem in self:
             elem._save(stream)
         record.Record(tags.ENDSTR).save(stream)
 
     def __repr__(self):
         return '<Structure: %s>' % self.name.decode()
-
-    def __iter__(self):
-        return iter(self.elements)

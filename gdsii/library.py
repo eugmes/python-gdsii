@@ -41,7 +41,7 @@ _GENERATIONS = _records.SimpleOptionalRecord('generations', tags.GENERATIONS, No
 _FORMAT = _records.FormatRecord('format', 'masks', tags.FORMAT, None, None)
 _UNITS = _records.UnitsRecord('logical_unit', 'physical_unit', tags.UNITS, None, None)
 
-class Library(object):
+class Library(list):
     """GDSII library class.
 
     GDS Syntax:
@@ -55,6 +55,7 @@ class Library(object):
     def __init__(self, version, name, physical_unit, logical_unit, mod_time=None,
             acc_time=None, libdirsize=None, srfname=None, acls=None, reflibs=None,
             fonts=None, attrtable=None, generations=None, format=None, masks=None):
+        list.__init__(self)
         self.version = version
         self.name = name
         self.physical_unit = physical_unit
@@ -70,16 +71,14 @@ class Library(object):
         self.generations = generations
         self.format = format
         self.masks = masks
-        self.structures = []
 
     @classmethod
     def load(cls, stream):
         """Load structure from stream."""
         self = cls.__new__(cls)
+        list.__init__(self)
 
         gen = record.Reader(stream)
-
-        self.structures = []
 
         gen.read_next()
         for obj in self._gds_objs:
@@ -89,7 +88,7 @@ class Library(object):
         rec = gen.current
         while True:
             if rec.tag == tags.BGNSTR:
-                self.structures.append(structure.Structure._load(gen))
+                self.append(structure.Structure._load(gen))
                 rec = gen.read_next()
             elif rec.tag == tags.ENDLIB:
                 break
@@ -100,12 +99,9 @@ class Library(object):
     def save(self, stream):
         for obj in self._gds_objs:
             obj.save(self, stream)
-        for struc in self.structures:
+        for struc in self:
             struc._save(stream)
         record.Record(tags.ENDLIB).save(stream)
 
     def __repr__(self):
         return '<Library: %s>' % self.name.decode()
-
-    def __iter__(self):
-        return iter(self.structures)
