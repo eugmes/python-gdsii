@@ -71,8 +71,7 @@ class Library(list):
             _FONTS, _ATTRTABLE, _GENERATIONS, _FORMAT, _UNITS)
 
     def __init__(self, version, name, physical_unit, logical_unit, mod_time=None,
-            acc_time=None, libdirsize=None, srfname=None, acls=None, reflibs=None,
-            fonts=None, attrtable=None, generations=None, format=None, masks=None):
+            acc_time=None):
         """
         Initialize the library.
         `mod_time` and `acc_time` are set to current UTC time by default.
@@ -84,15 +83,19 @@ class Library(list):
         self.logical_unit = logical_unit
         self.mod_time = mod_time if mod_time is not None else datetime.utcnow()
         self.acc_time = acc_time if acc_time is not None else datetime.utcnow()
-        self.libdirsize = libdirsize
-        self.srfname = srfname
-        self.acls = acls
-        self.reflibs = reflibs
-        self.fonts = fonts
-        self.attrtable = attrtable
-        self.generations = generations
-        self.format = format
-        self.masks = masks
+        self._init_optional()
+
+    def _init_optional(self):
+        """Initialize optional attributes to None."""
+        self.libdirsize = None
+        self.srfname = None
+        self.acls = None
+        self.reflibs = None
+        self.fonts = None
+        self.attrtable = None
+        self.generations = None
+        self.format = None
+        self.masks = None
 
     @classmethod
     def load(cls, stream):
@@ -104,6 +107,7 @@ class Library(list):
         """
         self = cls.__new__(cls)
         list.__init__(self)
+        self._init_optional()
 
         gen = record.Reader(stream)
 
