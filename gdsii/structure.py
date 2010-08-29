@@ -59,5 +59,5 @@ class Structure(object):
             elem._save(stream)
         record.Record(tags.ENDSTR).save(stream)
 
-    def __str__(self):
+    def __repr__(self):
         return '<Structure: %s>' % self.name.decode()

@@ -104,5 +104,5 @@ class Library(object):
             struc._save(stream)
         record.Record(tags.ENDLIB).save(stream)
 
-    def __str__(self):
+    def __repr__(self):
         return '<Library: %s>' % self.name.decode()
