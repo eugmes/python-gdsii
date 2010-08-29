@@ -89,6 +89,14 @@ class _Base(object):
     _gds_objs = None
     __slots__ = ()
 
+    def __init__(self):
+        """Initialize the element."""
+        self._init_optional()
+
+    def _init_optional(self):
+        """Initialize optional attributes to None."""
+        raise NotImplementedError
+
     @classmethod
     def _load(cls, gen):
         """
@@ -109,6 +117,7 @@ class _Base(object):
     def _read_element(cls, gen):
         """Read element using `gen` generator."""
         self = cls.__new__(cls)
+        self._init_optional()
         gen.read_next()
         for obj in self._gds_objs:
             obj.read(self, gen)
@@ -128,14 +137,16 @@ class Boundary(_Base):
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _DATATYPE, _XY, _PROPERTIES)
     __slots__ = ('layer', 'data_type', 'xy', 'elfalgs', 'plex', 'properties')
 
-    def __init__(self, layer, data_type, xy, elfalgs=None, plex=None,
-            properties=None):
+    def __init__(self, layer, data_type, xy):
+        _Base.__init__(self)
         self.layer = layer
         self.data_type = data_type
         self.xy = xy
-        self.elfalgs = elfalgs
-        self.plex = plex
-        self.properties = properties
+
+    def _init_optional(self):
+        self.elfalgs = None
+        self.plex = None
+        self.properties = None
 
 class Path(_Base):
     """Class for :const:`PATH` GDSII element."""
@@ -145,19 +156,20 @@ class Path(_Base):
     __slots__ = ('layer', 'data_type', 'xy', 'elflags', 'plex', 'path_type',
             'width', 'bgn_extn', 'end_extn', 'properties')
 
-    def __init__(self, layer, data_type, xy, elflags=None, plex=None,
-            path_type=None, width=None, bgn_extn=None, end_extn=None,
-            properties=None):
+    def __init__(self, layer, data_type, xy):
+        _Base.__init__(self)
         self.layer = layer
         self.data_type = data_type
         self.xy = xy
-        self.elflags = elflags
-        self.plex = plex
-        self.path_type = path_type
-        self.width = width
-        self.bgn_extn = bgn_extn
-        self.end_extn = end_extn
-        self.properties = properties
+
+    def _init_optional(self):
+        self.elflags = None
+        self.plex = None
+        self.path_type = None
+        self.width = None
+        self.bgn_extn = None
+        self.end_extn = None
+        self.properties = None
 
 class SRef(_Base):
     """Class for :const:`SREF` GDSII element."""
@@ -166,15 +178,17 @@ class SRef(_Base):
     __slots__ = ('struct_name', 'xy', 'elflags', 'strans', 'mag', 'angle',
             'properties')
 
-    def __init__(self, struct_name, xy, elflags=None, strans=None, mag=None,
-            angle=None, properties=None):
+    def __init__(self, struct_name, xy):
+        _Base.__init__(self)
         self.struct_name = struct_name
         self.xy = xy
-        self.elflags = elflags
-        self.strans = strans
-        self.mag = mag
-        self.angle = angle
-        self.strans = properties
+
+    def _init_optional(self):
+        self.elflags = None
+        self.strans = None
+        self.mag = None
+        self.angle = None
+        self.strans = None
 
 class ARef(_Base):
     """Class for :const:`AREF` GDSII element."""
@@ -183,18 +197,20 @@ class ARef(_Base):
     __slots__ = ('struct_name', 'cols', 'rows', 'xy', 'elflags', 'plex',
             'strans', 'mag', 'angle', 'properties')
 
-    def __init__(self, struct_name, cols, rows, xy, elflags=None, plex=None,
-            strans=None, mag=None, angle=None, properties=None):
+    def __init__(self, struct_name, cols, rows, xy):
+        _Base.__init__(self)
         self.struct_name = struct_name
         self.cols = cols
         self.rows = rows
         self.xy = xy
-        self.elflags = elflags
-        self.plex = plex
-        self.strans = strans
-        self.mag = mag
-        self.angle = angle
-        self.properties = properties
+
+    def _init_optional(self):
+        self.elflags = None
+        self.plex = None
+        self.strans = None
+        self.mag = None
+        self.angle = None
+        self.properties = None
 
 class Text(_Base):
     """Class for :const:`TEXT` GDSII element."""
@@ -205,22 +221,23 @@ class Text(_Base):
             'presentation', 'path_type', 'width', 'strans', 'mag', 'angle',
             'properties')
 
-    def __init__(self, layer, text_type, xy, string, elflags=None, plex=None,
-            presentation=None, path_type=None, width=None, strans=None,
-            mag=None, angle=None, properties=None):
+    def __init__(self, layer, text_type, xy, string):
+        _Base.__init__(self)
         self.layer = layer
         self.text_type = text_type
         self.xy = xy
         self.string = string
-        self.elflags = elflags
-        self.plex = plex
-        self.presentation = presentation
-        self.path_type = path_type
-        self.width = width
-        self.strans = strans
-        self.mag = mag
-        self.angle = angle
-        self.properties = properties
+
+    def _init_optional(self):
+        self.elflags = None
+        self.plex = None
+        self.presentation = None
+        self.path_type = None
+        self.width = None
+        self.strans = None
+        self.mag = None
+        self.angle = None
+        self.properties = None
 
 class Node(_Base):
     """Class for :const:`NODE` GDSII element."""
@@ -228,14 +245,16 @@ class Node(_Base):
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _NODETYPE, _XY, _PROPERTIES)
     __slots__ = ('layer', 'node_type', 'xy', 'elflags', 'plex', 'properties')
 
-    def __init__(self, layer, node_type, xy, elflags=None, plex=None,
-            properties=None):
+    def __init__(self, layer, node_type, xy):
+        _Base.__init__(self)
         self.layer = layer
         self.node_type = node_type
         self.xy = xy
-        self.elflags = elflags
-        self.plex = plex
-        self.properties = properties
+
+    def _init_optional(self):
+        self.elflags = None
+        self.plex = None
+        self.properties = None
 
 class Box(_Base):
     """Class for :const:`BOX` GDSII element."""
@@ -243,14 +262,16 @@ class Box(_Base):
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _BOXTYPE, _XY, _PROPERTIES)
     __slots__ = ('layer', 'box_type', 'xy', 'elflags', 'plex', 'properties')
 
-    def __init__(self, layer, box_type, xy, elflags=None, plex=None,
-            properties=None):
+    def __init__(self, layer, box_type, xy):
+        _Base.__init__(self)
         self.layer = layer
         self.box_type = box_type
         self.xy = xy
-        self.elflags = elflags
-        self.plex = plex
-        self.properties = properties
+
+    def _init_optional(self):
+        self.elflags = None
+        self.plex = None
+        self.properties = None
 
 _all_elements = (Boundary, Path, SRef, ARef, Text, Node, Box)
 
