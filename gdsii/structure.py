@@ -32,17 +32,21 @@ class Structure(list):
     """GDSII structure class."""
     _gds_objs = (_BGNSTR, _STRNAME, _STRCLASS)
 
-    def __init__(self, name, mod_time=None, acc_time=None, strclass=None):
+    def __init__(self, name, mod_time=None, acc_time=None):
         list.__init__(self)
         self.name = name
         self.mod_time = mod_time if mod_time is not None else datetime.utcnow()
         self.acc_time = acc_time if acc_time is not None else datetime.utcnow()
-        self.strclass = strclass
+
+    def _init_optional(self):
+        """Initialize optional attributes to None."""
+        self.strclass = None
 
     @classmethod
     def _load(cls, gen):
         self = cls.__new__(cls)
         list.__init__(self)
+        self._init_optional()
 
         for obj in self._gds_objs:
             obj.read(self, gen)
