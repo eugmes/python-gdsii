@@ -40,7 +40,6 @@ _GENERATIONS = _records.SimpleOptionalRecord('generations', tags.GENERATIONS, No
 _FORMAT = _records.FormatRecord('format', 'masks', tags.FORMAT, None, None)
 _UNITS = _records.UnitsRecord('logical_unit', 'physical_unit', tags.UNITS, None, None)
 
-@_records.stream_class
 class Library(object):
     """GDSII library class.
 

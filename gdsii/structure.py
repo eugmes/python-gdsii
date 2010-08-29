@@ -27,7 +27,6 @@ _BGNSTR = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,
 _STRCLASS = _records.SimpleOptionalRecord('strclass', tags.STRCLASS,
     'Structure class (int, optional).')
 
-@_records.stream_class
 class Structure(object):
     """GDSII structure class."""
     _gds_objs = (_BGNSTR, _STRNAME, _STRCLASS)
