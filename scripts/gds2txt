@@ -1,5 +1,5 @@
 #! /usr/bin/python
-"""Demonstration program for pygdsii basic reading function."""
+"""Demonstration program for basic gdsii reading function."""
 from __future__ import print_function
 from gdsii import types
 from gdsii.record import Record
