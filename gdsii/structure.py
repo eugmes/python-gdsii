@@ -15,8 +15,12 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-    GDSII structure interface
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+:mod:`gdsii.structure` --- interface to a GDSII structure
+=========================================================
+
+This module contains class that represents a GDSII structure.
+
+.. moduleauthor:: Eugeniy Meshcheryakov <eugen@debian.org>
 """
 from __future__ import absolute_import
 from . import elements, record, tags, _records
@@ -29,10 +33,25 @@ _STRCLASS = _records.SimpleOptionalRecord('strclass', tags.STRCLASS,
     'Structure class (int, optional).')
 
 class Structure(list):
-    """GDSII structure class."""
+    """
+    GDSII structure class. This class is derived for :class:`list` and can
+    contain one or more elements from :mod:`gdsii.elements`.
+
+    GDS syntax for the structure:
+        .. productionlist::
+            structure: BGNSTR
+                     : STRNAME
+                     : [STRCLASS]
+                     : {`element`}*
+                     : ENDSTR
+    """
     _gds_objs = (_BGNSTR, _STRNAME, _STRCLASS)
 
     def __init__(self, name, mod_time=None, acc_time=None):
+        """
+        Initialize the structure.
+        `mod_time` and `acc_time` are set to current UTC time by default.
+        """
         list.__init__(self)
         self.name = name
         self.mod_time = mod_time if mod_time is not None else datetime.utcnow()

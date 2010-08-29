@@ -48,7 +48,7 @@ _UNITS = _records.UnitsRecord('logical_unit', 'physical_unit', tags.UNITS, None,
 class Library(list):
     """
     GDSII library class. This class is derived from :class:`list` and can contain
-    one ore more instances of :class:`gdsii.structure.Structure`.
+    one one more instances of :class:`gdsii.structure.Structure`.
 
     GDS syntax for the library:
         .. productionlist::
@@ -66,6 +66,8 @@ class Library(list):
                    : UNITS
                    : {`structure`}*
                    : ENDLIB
+            format: FORMAT
+                  : [MASK+ ENDMASKS]
     """
     _gds_objs = (_HEADER, _BGNLIB, _LIBDIRSIZE, _SRFNAME, _LIBSECUR, _LIBNAME, _REFLIBS,
             _FONTS, _ATTRTABLE, _GENERATIONS, _FORMAT, _UNITS)

@@ -15,28 +15,48 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-    GDSII element classes
-    ~~~~~~~~~~~~~~~~~~~~~
+:mod:`gdsii.elements` -- interface to GDSII elements
+====================================================
 
-    This module contains definitions for classes representing
-    various GDSII elements. Mapping between GDSII elements and
-    classes is given in the following table:
+This module contains definitions for classes representing
+various GDSII elements. Mapping between GDSII elements and
+classes is given in the following table:
 
-        +-------------------+-------------------+
-        | :const:`AREF`     | :class:`ARef`     |
-        +-------------------+-------------------+
-        | :const:`BOUNDARY` | :class:`Boundary` |
-        +-------------------+-------------------+
-        | :const:`BOX`      | :class:`Box`      |
-        +-------------------+-------------------+
-        | :const:`NODE`     | :class:`Node`     |
-        +-------------------+-------------------+
-        | :const:`PATH`     | :class:`Path`     |
-        +-------------------+-------------------+
-        | :const:`SREF`     | :class:`SRef`     |
-        +-------------------+-------------------+
-        | :const:`TEXT`     | :class:`Text`     |
-        +-------------------+-------------------+
+   +-------------------+-------------------+
+   | :const:`AREF`     | :class:`ARef`     |
+   +-------------------+-------------------+
+   | :const:`BOUNDARY` | :class:`Boundary` |
+   +-------------------+-------------------+
+   | :const:`BOX`      | :class:`Box`      |
+   +-------------------+-------------------+
+   | :const:`NODE`     | :class:`Node`     |
+   +-------------------+-------------------+
+   | :const:`PATH`     | :class:`Path`     |
+   +-------------------+-------------------+
+   | :const:`SREF`     | :class:`SRef`     |
+   +-------------------+-------------------+
+   | :const:`TEXT`     | :class:`Text`     |
+   +-------------------+-------------------+
+
+This module implements the following GDS syntax:
+    .. productionlist::
+        element: `aref` |
+               : `boundary` |
+               : `box` |
+               : `node` |
+               : `path` |
+               : `sref` |
+               : `text`
+Additional definitions:
+    .. productionlist::
+        properties: `property`*
+        property: PROPATTR
+                : PROPVALUE
+        strans: STRANS
+              : [MAG]
+              : [ANGLE]
+
+.. moduleauthor:: Eugeniy Meshcheryakov <eugen@debian.org>
 """
 from __future__ import absolute_import
 from . import exceptions, record, tags, _records
@@ -132,7 +152,20 @@ class _Base(object):
         record.Record(tags.ENDEL).save(stream)
 
 class Boundary(_Base):
-    """Class for :const:`BOUNDARY` GDSII element."""
+    """
+    Class for :const:`BOUNDARY` GDSII element.
+
+    GDS syntax:
+        .. productionlist::
+            boundary: BOUNDARY
+                     : [ELFLAGS]
+                     : [PLEX]
+                     : LAYER
+                     : DATATYPE
+                     : XY
+                     : [`properties`]
+                     : ENDEL
+    """
     _gds_tag = tags.BOUNDARY
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _DATATYPE, _XY, _PROPERTIES)
     __slots__ = ('layer', 'data_type', 'xy', 'elfalgs', 'plex', 'properties')
@@ -149,7 +182,24 @@ class Boundary(_Base):
         self.properties = None
 
 class Path(_Base):
-    """Class for :const:`PATH` GDSII element."""
+    """
+    Class for :const:`PATH` GDSII element.
+
+    GDS syntax:
+        .. productionlist::
+            path: PATH
+                : [ELFLAGS]
+                : [PLEX]
+                : LAYER
+                : DATATYPE
+                : [PATHTYPE]
+                : [WIDTH]
+                : [BGNEXTN]
+                : [ENDEXTN]
+                : XY
+                : [`properties`]
+                : ENDEL
+    """
     _gds_tag = tags.PATH
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _DATATYPE, _PATHTYPE, _WIDTH,
             _BGNEXTN, _ENDEXTN, _XY, _PROPERTIES)
@@ -172,7 +222,20 @@ class Path(_Base):
         self.properties = None
 
 class SRef(_Base):
-    """Class for :const:`SREF` GDSII element."""
+    """
+    Class for :const:`SREF` GDSII element.
+
+    GDS syntax:
+        .. productionlist::
+            sref: SREF
+                : [ELFLAGS]
+                : [PLEX]
+                : SNAME
+                : [`strans`]
+                : XY
+                : [`properties`]
+                : ENDEL
+    """
     _gds_tag = tags.SREF
     _gds_objs = (_ELFLAGS, _PLEX, _SNAME, _STRANS, _XY, _PROPERTIES)
     __slots__ = ('struct_name', 'xy', 'elflags', 'strans', 'mag', 'angle',
@@ -191,7 +254,21 @@ class SRef(_Base):
         self.strans = None
 
 class ARef(_Base):
-    """Class for :const:`AREF` GDSII element."""
+    """
+    Class for :const:`AREF` GDSII element.
+
+    GDS syntax:
+        .. productionlist::
+            aref: AREF
+                : [ELFLAGS]
+                : [PLEX]
+                : SNAME
+                : [`strans`]
+                : COLROW
+                : XY
+                : [`properties`]
+                : ENDEL
+    """
     _gds_tag = tags.AREF
     _gds_objs = (_ELFLAGS, _PLEX, _SNAME, _STRANS, _COLROW, _XY, _PROPERTIES)
     __slots__ = ('struct_name', 'cols', 'rows', 'xy', 'elflags', 'plex',
@@ -213,7 +290,25 @@ class ARef(_Base):
         self.properties = None
 
 class Text(_Base):
-    """Class for :const:`TEXT` GDSII element."""
+    """
+    Class for :const:`TEXT` GDSII element.
+
+    GDS syntax:
+        .. productionlist::
+            text: TEXT
+                : [ELFLAGS]
+                : [PLEX]
+                : LAYER
+                : TEXTTYPE
+                : [PRESENTATION]
+                : [PATHTYPE]
+                : [WIDTH]
+                : [`strans`]
+                : XY
+                : STRING
+                : [`properties`]
+                : ENDEL
+    """
     _gds_tag = tags.TEXT
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _TEXTTYPE, _PRESENTATION, _PATHTYPE,
             _WIDTH, _STRANS, _XY, _STRING, _PROPERTIES)
@@ -240,7 +335,20 @@ class Text(_Base):
         self.properties = None
 
 class Node(_Base):
-    """Class for :const:`NODE` GDSII element."""
+    """
+    Class for :const:`NODE` GDSII element.
+
+    GDS syntax:
+        .. productionlist::
+            node: NODE
+                : [ELFLAGS]
+                : [PLEX]
+                : LAYER
+                : NODETYPE
+                : XY
+                : [`properties`]
+                : ENDEL
+    """
     _gds_tag = tags.NODE
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _NODETYPE, _XY, _PROPERTIES)
     __slots__ = ('layer', 'node_type', 'xy', 'elflags', 'plex', 'properties')
@@ -257,7 +365,20 @@ class Node(_Base):
         self.properties = None
 
 class Box(_Base):
-    """Class for :const:`BOX` GDSII element."""
+    """
+    Class for :const:`BOX` GDSII element.
+
+    GDS syntax:
+        .. productionlist::
+            box: BOX
+               : [ELFLAGS]
+               : [PLEX]
+               : LAYER
+               : BOXTYPE
+               : XY
+               : [`properties`]
+               : ENDEL
+    """
     _gds_tag = tags.BOX
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _BOXTYPE, _XY, _PROPERTIES)
     __slots__ = ('layer', 'box_type', 'xy', 'elflags', 'plex', 'properties')
