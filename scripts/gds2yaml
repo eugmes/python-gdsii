@@ -1,5 +1,4 @@
 #! /usr/bin/python
-"""Demonstration program for pygdsii basic reading function."""
 from __future__ import print_function
 from gdsii.library import Library
 from gdsii import elements
