@@ -171,7 +171,7 @@ def dump_structure(dumper, struc):
     acc_time(dumper, struc)
     strclass(dumper, struc)
     start_named_seq(dumper, 'elements')
-    for elem in struc.elements:
+    for elem in struc:
         dump_element(dumper, elem)
     end_named_seq(dumper)
     dumper.emit(events.MappingEndEvent())
@@ -194,7 +194,7 @@ def dump_library(dumper, lib):
     physical_unit(dumper, lib)
     logical_unit(dumper, lib)
     start_named_seq(dumper, 'structures')
-    for struc in lib.structures:
+    for struc in lib:
         dump_structure(dumper, struc)
     end_named_seq(dumper)
     dumper.emit(events.MappingEndEvent())
