@@ -106,3 +106,6 @@ class Library(object):
 
     def __repr__(self):
         return '<Library: %s>' % self.name.decode()
+
+    def __iter__(self):
+        return iter(self.structures)

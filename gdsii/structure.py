@@ -61,3 +61,6 @@ class Structure(object):
 
     def __repr__(self):
         return '<Structure: %s>' % self.name.decode()
+
+    def __iter__(self):
+        return iter(self.elements)
