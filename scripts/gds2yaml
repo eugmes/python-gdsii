@@ -1,4 +1,6 @@
 #! /usr/bin/python
+# Copyright © 2010 Eugeniy Meshcheryakov <eugen@debian.org>
+# This file is licensed under GNU Lesser General Public License version 3 or later.
 from __future__ import print_function
 from gdsii.library import Library
 from gdsii import elements
