@@ -6,3 +6,5 @@ recursive-include test/data *
 include test/__init__.py
 
 include Makefile
+include GPL-3
+include LGPL-3
