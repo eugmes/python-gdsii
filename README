@@ -29,7 +29,7 @@ enough. Here is a small example::
     # let's also add some elements...
     # Note: first and last points in the boundary should be the same
     #       this is required by GDSII spec.
-    struc.append(Boundary(45, 0, [(-100000, -100000), (-100000, 0), (0,0), (0, -100000), (-100000, -100000)])
+    struc.append(Boundary(45, 0, [(-100000, -100000), (-100000, 0), (0,0), (0, -100000), (-100000, -100000)]))
 
     # Save both file with different names...
     with open('newfile1.gds', 'wb') as stream:
