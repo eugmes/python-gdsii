@@ -4,3 +4,5 @@ prune doc/_build
 recursive-include test/data *
 
 include test/__init__.py
+
+include Makefile
