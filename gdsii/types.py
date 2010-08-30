@@ -14,7 +14,12 @@
 #
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""GDSII data types."""
+"""
+:mod:`gdsii.types` --- definitions of GDSII data types
+======================================================
+
+This module contains definitions of GDSII data types.
+"""
 
 DICT = {
     'NODATA': 0,

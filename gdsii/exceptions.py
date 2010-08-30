@@ -14,6 +14,12 @@
 #
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+:mod:`gdsii.exceptions` --- GDSII exceptions
+============================================
+
+This module contains exception classes used in `python-gdsii`.
+"""
 __all__ = ('FormatError', 'EndOfFileError', 'IncorrectDataSize',
         'UnsupportedTagType', 'MissingRecord', 'DataSizeError')
 

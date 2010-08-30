@@ -14,7 +14,14 @@
 #
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-'''Module containing GDSII record tags.'''
+"""
+:mod:`gdsii.tags` --- definitions of GDSII tags
+===============================================
+
+This module containing definitions of GDSII record tags.
+
+.. moduleauthor:: Eugeniy Meshcheryakov <eugen@debian.org>
+"""
 
 DICT = {
     'HEADER': 0x0002,

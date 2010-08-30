@@ -14,6 +14,14 @@
 #
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+:mod:`gdsii.record` --- GDSII record I/O
+========================================
+
+This module contains classes for low-level GDSII I/O.
+
+.. moduleauthor:: Eugeniy Meshcheryakov <eugen@debian.org>
+"""
 from __future__ import absolute_import
 from . import exceptions, tags, types
 from datetime import datetime
@@ -304,7 +312,7 @@ _PACK_FUNCS = {
     types.REAL8: _pack_real8,
     types.ASCII: _pack_ascii
 }
-# TODO implement lazy parsing, maybe
+
 class Record(object):
     """
     Class for representing a GDSII record with attached data.
@@ -561,6 +569,7 @@ class Reader(object):
         self.stream = stream
 
     def read_next(self):
+        """Read and return next record from stream."""
         self.current = Record.read(self.stream)
         return self.current
 
