@@ -97,9 +97,10 @@ class PropertiesRecord(AbstractRecord):
 
     def save(self, instance, stream):
         props = getattr(instance, self.variable)
-        for (propattr, propvalue) in props:
-            record.Record(tags.PROPATTR, (propattr,)).save(stream)
-            record.Record(tags.PROPVALUE, propvalue).save(stream)
+        if props:
+            for (propattr, propvalue) in props:
+                record.Record(tags.PROPATTR, (propattr,)).save(stream)
+                record.Record(tags.PROPVALUE, propvalue).save(stream)
 
 class XYRecord(SimpleRecord):
     def read(self, instance, gen):
