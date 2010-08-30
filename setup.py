@@ -1,9 +1,20 @@
 from distutils.core import setup
 
+long_desc = """
+python-gdsii is a library that can be used to read,
+modify and save GDSII files. It supports both low-level
+record I/O and high level interface to GDSII libraries
+(databases), structures, and elements.
+
+This package also includes scripts that can be used
+to convert binary GDS file to a text format.
+"""
+
 setup(
     name = 'python-gdsii',
-    version = '0.0',
+    version = '0.1',
     description = 'GDSII manipulation libaray',
+    long_description = long_desc,
     author = 'Eugeniy Meshcheryakov',
     author_email = 'eugen@debian.org',
     url = 'http://www.gitorious.org/python-gdsii',
@@ -21,5 +32,6 @@ setup(
         'Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    license = 'LGPL-3+'
+    license = 'LGPL-3+',
+    platforms = 'any'
 )
