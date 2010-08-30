@@ -1,4 +1,5 @@
 #! /usr/bin/python
+# -*- coding: utf-8 -*-
 # Copyright © 2010 Eugeniy Meshcheryakov <eugen@debian.org>
 # This file is licensed under GNU Lesser General Public License version 3 or later.
 """Demonstration program for basic gdsii reading function."""
