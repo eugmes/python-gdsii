@@ -23,6 +23,8 @@ various GDSII elements. Mapping between GDSII elements and
 classes is given in the following table:
 
    +-------------------+-------------------+
+   | GDSII Record      | Class             |
+   +===================+===================+
    | :const:`AREF`     | :class:`ARef`     |
    +-------------------+-------------------+
    | :const:`BOUNDARY` | :class:`Boundary` |
@@ -251,7 +253,7 @@ class SRef(_Base):
         self.strans = None
         self.mag = None
         self.angle = None
-        self.strans = None
+        self.properties = None
 
 class ARef(_Base):
     """
