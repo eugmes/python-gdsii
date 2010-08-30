@@ -11,7 +11,7 @@ to a text format.
 
 setup(
     name = 'python-gdsii',
-    version = '0.1',
+    version = '0.1.1',
     description = 'GDSII manipulation libaray',
     long_description = long_desc,
     author = 'Eugeniy Meshcheryakov',
