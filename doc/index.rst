@@ -15,6 +15,12 @@ Contents:
 
    gdsii/index
 
+Download
+--------
+
+`python-gdsii` can be downloaded from its Python Package Index `page <http://pypi.python.org/pypi/python-gdsii/>`_.
+The source code repository is available on `gitorious.org <http://gitorious.org/python-gdsii>`_.
+
 Usage
 -----
 
