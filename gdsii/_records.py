@@ -18,9 +18,8 @@ from __future__ import absolute_import
 from . import record, tags
 
 class AbstractRecord(object):
-    def __init__(self, variable, doc):
+    def __init__(self, variable):
         self.variable = variable
-        self.doc = doc
 
     def read(self, instance, gen):
         raise NotImplementedError
@@ -33,13 +32,12 @@ class AbstractRecord(object):
 
 class SecondVar(object):
     """Class that simplifies second property support."""
-    def __init__(self, variable2, doc2):
+    def __init__(self, variable2):
         self.variable2 = variable2
-        self.doc2 = doc2
 
 class SimpleRecord(AbstractRecord):
-    def __init__(self, variable, gds_record, doc):
-        AbstractRecord.__init__(self, variable, doc)
+    def __init__(self, variable, gds_record):
+        AbstractRecord.__init__(self, variable)
         self.gds_record = gds_record
 
     def read(self, instance, gen):
@@ -124,9 +122,9 @@ class StringRecord(SimpleRecord):
         record.Record(self.gds_record, getattr(instance, self.variable)).save(stream)
 
 class ColRowRecord(AbstractRecord, SecondVar):
-    def __init__(self, variable1, variable2, doc1, doc2):
-        AbstractRecord.__init__(self, variable1, doc1)
-        SecondVar.__init__(self, variable2, doc2)
+    def __init__(self, variable1, variable2):
+        AbstractRecord.__init__(self, variable1)
+        SecondVar.__init__(self, variable2)
 
     def read(self, instance, gen):
         rec = gen.current
@@ -143,9 +141,9 @@ class ColRowRecord(AbstractRecord, SecondVar):
         record.Record(tags.COLROW, (col, row)).save(stream)
 
 class TimestampsRecord(SimpleRecord, SecondVar):
-    def __init__(self, variable1, variable2, gds_record, doc1, doc2):
-        SimpleRecord.__init__(self, variable1, gds_record, doc1)
-        SecondVar.__init__(self, variable2, doc2)
+    def __init__(self, variable1, variable2, gds_record):
+        SimpleRecord.__init__(self, variable1, gds_record)
+        SecondVar.__init__(self, variable2)
 
     def read(self, instance, gen):
         rec = gen.current
@@ -161,8 +159,8 @@ class TimestampsRecord(SimpleRecord, SecondVar):
         record.Record(self.gds_record, times=(mod_time, acc_time)).save(stream)
 
 class STransRecord(OptionalWholeRecord):
-    mag = SimpleOptionalRecord('mag', tags.MAG, 'Magnification (real, optional).')
-    angle = SimpleOptionalRecord('angle', tags.ANGLE, 'Rotation angle (real, optional).')
+    mag = SimpleOptionalRecord('mag', tags.MAG)
+    angle = SimpleOptionalRecord('angle', tags.ANGLE)
 
     def optional_read(self, instance, gen, rec):
         setattr(instance, self.variable, rec.data)
@@ -186,9 +184,9 @@ class ACLRecord(SimpleOptionalRecord):
             record.Record(self.gds_record, acls=data).save(stream)
 
 class FormatRecord(SimpleOptionalRecord, SecondVar):
-    def __init__(self, variable1, variable2, gds_record, doc1, doc2):
-        SimpleOptionalRecord.__init__(self, variable1, gds_record, doc1)
-        SecondVar.__init__(self, variable2, doc2)
+    def __init__(self, variable1, variable2, gds_record):
+        SimpleOptionalRecord.__init__(self, variable1, gds_record)
+        SecondVar.__init__(self, variable2)
 
     def optional_read(self, instance, gen, rec):
         SimpleOptionalRecord.optional_read(self, instance, gen, rec)
@@ -213,9 +211,9 @@ class FormatRecord(SimpleOptionalRecord, SecondVar):
                 record.Record(tags.ENDMASKS).save(stream)
 
 class UnitsRecord(SimpleRecord, SecondVar):
-    def __init__(self, variable1, variable2, gds_record, doc1, doc2):
-        SimpleRecord.__init__(self, variable1, gds_record, doc1)
-        SecondVar.__init__(self, variable2, doc2)
+    def __init__(self, variable1, variable2, gds_record):
+        SimpleRecord.__init__(self, variable1, gds_record)
+        SecondVar.__init__(self, variable2)
 
     def read(self, instance, gen):
         rec = gen.current

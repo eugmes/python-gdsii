@@ -73,35 +73,24 @@ __all__ = (
     'Box'
 )
 
-_ELFLAGS = _records.OptionalWholeRecord('elflags', tags.ELFLAGS, 'Element flags (bitfield).')
-_PLEX = _records.SimpleOptionalRecord('plex', tags.PLEX, 'Plex (integer).')
-_LAYER = _records.SimpleRecord('layer', tags.LAYER, 'Layer (integer).')
-_DATATYPE = _records.SimpleRecord('data_type', tags.DATATYPE, 'Data type (integer).')
-_PATHTYPE = _records.SimpleOptionalRecord('path_type', tags.PATHTYPE, 'Path type (integer).')
-_WIDTH = _records.SimpleOptionalRecord('width', tags.WIDTH, 'Width of the path (integer).')
-_BGNEXTN = _records.SimpleOptionalRecord('bgn_extn', tags.BGNEXTN, 'Beginning extension for path type 4 (integer, optional).')
-_ENDEXTN = _records.SimpleOptionalRecord('end_extn', tags.ENDEXTN, 'End extension for path type 4 (integer, optional).')
-_XY = _records.XYRecord('xy', tags.XY, 'Points.')
-_SNAME = _records.StringRecord('struct_name', tags.SNAME, 'Name of a referenced structure (byte array).')
-_STRANS = _records.STransRecord('strans', tags.STRANS, 'Transformation flags.')
-_COLROW = _records.ColRowRecord('cols', 'rows', 'Number of columns (integer).', 'Number of rows (integer).')
-_TEXTTYPE = _records.SimpleRecord('text_type', tags.TEXTTYPE, 'Text type (integer).')
-_PRESENTATION = _records.OptionalWholeRecord('presentation', tags.PRESENTATION,
-""" Bit array that specifies how the text is presented (optional).
-    Meaning of bits:
-
-    * Bits 10 and 11 specify font number (0-3).
-    * Bits 12 and 13 specify vertical justification (0 - top, 1 - middle, 2 - bottom).
-    * Bits 14 and 15 specify horizontal justification (0 - left, 1 - center, 2 - rigth).
-""")
-_STRING = _records.StringRecord('string', tags.STRING, 'A string as bytes array.')
-_NODETYPE = _records.SimpleRecord('node_type', tags.NODETYPE, 'Node type (integer).')
-_BOXTYPE = _records.SimpleRecord('box_type', tags.BOXTYPE, 'Box type (integer).')
-_PROPERTIES = _records.PropertiesRecord('properties',
-""" List containing properties of an element.
-    Properties are represented as tuples (propattr, propvalue).
-    Type of propattr is int, propvalue is bytes.
-""")
+_ELFLAGS = _records.OptionalWholeRecord('elflags', tags.ELFLAGS)
+_PLEX = _records.SimpleOptionalRecord('plex', tags.PLEX)
+_LAYER = _records.SimpleRecord('layer', tags.LAYER)
+_DATATYPE = _records.SimpleRecord('data_type', tags.DATATYPE)
+_PATHTYPE = _records.SimpleOptionalRecord('path_type', tags.PATHTYPE)
+_WIDTH = _records.SimpleOptionalRecord('width', tags.WIDTH)
+_BGNEXTN = _records.SimpleOptionalRecord('bgn_extn', tags.BGNEXTN)
+_ENDEXTN = _records.SimpleOptionalRecord('end_extn', tags.ENDEXTN)
+_XY = _records.XYRecord('xy', tags.XY)
+_SNAME = _records.StringRecord('struct_name', tags.SNAME)
+_STRANS = _records.STransRecord('strans', tags.STRANS)
+_COLROW = _records.ColRowRecord('cols', 'rows')
+_TEXTTYPE = _records.SimpleRecord('text_type', tags.TEXTTYPE)
+_PRESENTATION = _records.OptionalWholeRecord('presentation', tags.PRESENTATION)
+_STRING = _records.StringRecord('string', tags.STRING)
+_NODETYPE = _records.SimpleRecord('node_type', tags.NODETYPE)
+_BOXTYPE = _records.SimpleRecord('box_type', tags.BOXTYPE)
+_PROPERTIES = _records.PropertiesRecord('properties')
 
 class _Base(object):
     """Base class for all GDSII elements."""

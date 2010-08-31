@@ -26,24 +26,18 @@ from __future__ import absolute_import
 from . import exceptions, record, structure, tags, _records
 from datetime import datetime
 
-_HEADER = _records.SimpleRecord('version', tags.HEADER,
-""" GDSII file verion.
-
-    Integer number as found in a GDSII file. For example value is 5 for GDSII v5
-    and 0x600 for GDSII v6.
-""")
-_BGNLIB = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNLIB,
-    'Last modification time (datetime).', 'Last access time (datetime).')
-_LIBDIRSIZE = _records.SimpleOptionalRecord('libdirsize', tags.LIBDIRSIZE, None)
-_SRFNAME = _records.OptionalWholeRecord('srfname', tags.SRFNAME, 'Name of spacing rules file (bytes, optional).')
-_LIBSECUR = _records.ACLRecord('acls', tags.LIBSECUR, 'ACL data, list of tuples (GID, UID, ACCESS).')
-_LIBNAME = _records.StringRecord('name', tags.LIBNAME, 'Library name (bytes).')
-_REFLIBS = _records.OptionalWholeRecord('reflibs', tags.REFLIBS, None)
-_FONTS = _records.OptionalWholeRecord('fonts', tags.FONTS, None)
-_ATTRTABLE = _records.OptionalWholeRecord('attrtable', tags.ATTRTABLE, None)
-_GENERATIONS = _records.SimpleOptionalRecord('generations', tags.GENERATIONS, None)
-_FORMAT = _records.FormatRecord('format', 'masks', tags.FORMAT, None, None)
-_UNITS = _records.UnitsRecord('logical_unit', 'physical_unit', tags.UNITS, None, None)
+_HEADER = _records.SimpleRecord('version', tags.HEADER)
+_BGNLIB = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNLIB)
+_LIBDIRSIZE = _records.SimpleOptionalRecord('libdirsize', tags.LIBDIRSIZE)
+_SRFNAME = _records.OptionalWholeRecord('srfname', tags.SRFNAME)
+_LIBSECUR = _records.ACLRecord('acls', tags.LIBSECUR)
+_LIBNAME = _records.StringRecord('name', tags.LIBNAME)
+_REFLIBS = _records.OptionalWholeRecord('reflibs', tags.REFLIBS)
+_FONTS = _records.OptionalWholeRecord('fonts', tags.FONTS)
+_ATTRTABLE = _records.OptionalWholeRecord('attrtable', tags.ATTRTABLE)
+_GENERATIONS = _records.SimpleOptionalRecord('generations', tags.GENERATIONS)
+_FORMAT = _records.FormatRecord('format', 'masks', tags.FORMAT)
+_UNITS = _records.UnitsRecord('logical_unit', 'physical_unit', tags.UNITS)
 
 class Library(list):
     """

@@ -26,11 +26,9 @@ from __future__ import absolute_import
 from . import elements, record, tags, _records
 from datetime import datetime
 
-_STRNAME = _records.StringRecord('name', tags.STRNAME, 'Structure name (bytes).')
-_BGNSTR = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR,
-    'Last modification time (datetime).', 'Last access time (datetime).')
-_STRCLASS = _records.SimpleOptionalRecord('strclass', tags.STRCLASS,
-    'Structure class (int, optional).')
+_STRNAME = _records.StringRecord('name', tags.STRNAME)
+_BGNSTR = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNSTR)
+_STRCLASS = _records.SimpleOptionalRecord('strclass', tags.STRCLASS)
 
 class Structure(list):
     """
