@@ -1,4 +1,4 @@
-Welcome to pythin-gdsii's documentation!
+Welcome to python-gdsii's documentation!
 ========================================
 
 `python-gdsii` is a library that can be used to read, create, modify and save
