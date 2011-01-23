@@ -21,6 +21,7 @@ setup(
     scripts = [
         'scripts/gds2txt',
         'scripts/gds2yaml',
+        'scripts/txt2gds',
     ],
     classifiers = [
         'Development Status :: 3 - Alpha',
