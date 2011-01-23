@@ -53,6 +53,16 @@ Possible instance attributes:
         * Bits 10 and 11 specify font number (0-3).
         * Bits 12 and 13 specify vertical justification (0 -- top, 1 -- middle, 2 -- bottom).
         * Bits 14 and 15 specify horizontal justification (0 -- left, 1 -- center, 2 -- rigth).
+    :attr:`string`
+        String for :const:`TEXT` element (:class:`bytes`).
+    :attr:`node_type`
+        Node type (:class:`int`).
+    :attr:`box_type`
+        Box type (:class:`int`).
+    :attr:`properties`
+        Element properties, represented as a list of tupes (`propattr`, `propvalue`).
+        `propattr` is an :class:`int`, `propvalue` is :class:`bytes`.
+        This attribute is optional.
 
 .. autoclass:: ARef
     
