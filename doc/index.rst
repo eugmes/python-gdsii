@@ -44,7 +44,7 @@ enough. Here is a small example::
     #       this is required by GDSII spec.
     struc.append(Boundary(45, 0, [(-100000, -100000), (-100000, 0), (0,0), (0, -100000), (-100000, -100000)]))
 
-    # Save both file with different names...
+    # Save both files with different names...
     with open('newfile1.gds', 'wb') as stream:
         lib.save(stream)
 
