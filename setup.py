@@ -6,7 +6,8 @@ GDSII files. It supports both low-level record I/O and high level interface to
 GDSII libraries (databases), structures, and elements.
 
 This package also includes scripts that can be used to convert binary GDS file
-to a text format.
+to a simple text format (gds2txt), YAML (gds2yaml), and from text fromat back
+to GDSII (txt2gds).
 """
 
 setup(
