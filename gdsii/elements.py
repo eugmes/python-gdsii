@@ -159,7 +159,7 @@ class Boundary(_Base):
     """
     _gds_tag = tags.BOUNDARY
     _gds_objs = (_ELFLAGS, _PLEX, _LAYER, _DATATYPE, _XY, _PROPERTIES)
-    __slots__ = ('layer', 'data_type', 'xy', 'elfalgs', 'plex', 'properties')
+    __slots__ = ('layer', 'data_type', 'xy', 'elflags', 'plex', 'properties')
 
     def __init__(self, layer, data_type, xy):
         _Base.__init__(self)
@@ -168,7 +168,7 @@ class Boundary(_Base):
         self.xy = xy
 
     def _init_optional(self):
-        self.elfalgs = None
+        self.elflags = None
         self.plex = None
         self.properties = None
 
