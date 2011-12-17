@@ -12,7 +12,7 @@ to GDSII (txt2gds).
 
 setup(
     name = 'python-gdsii',
-    version = '0.2',
+    version = '0.2.1',
     description = 'GDSII manipulation libaray',
     long_description = long_desc,
     author = 'Eugeniy Meshcheryakov',
