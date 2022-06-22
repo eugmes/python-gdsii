@@ -146,19 +146,17 @@ def _parse_ascii(data):
     r"""
     Parse ASCII data type.
 
-        >>> _parse_ascii(b'') # zero bytes
-        Traceback (most recent call last):
-            ...
-        IncorrectDataSize: ASCII
+        >>> _parse_ascii(b'') == b'' # zero bytes
+        True
         >>> _parse_ascii(b'abcde') == b'abcde'
         True
         >>> _parse_ascii(b'abcde\0') == b'abcde' # strips trailing NUL
         True
     """
     if not len(data):
-        raise exceptions.IncorrectDataSize('ASCII')
+        data = b''
     # XXX cross-version compatibility
-    if data[-1:] == b'\0':
+    elif data[-1:] == b'\0':
         return data[:-1]
     return data
 
@@ -294,6 +292,8 @@ def _pack_ascii(data):
     r"""
     Pack ASCII tag data.
 
+        >>> _pack_ascii(b'') == b''
+        True
         >>> _pack_ascii(b'abcd') == b'abcd'
         True
         >>> _pack_ascii(b'abc') == b'abc\0'
