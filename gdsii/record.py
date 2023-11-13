@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-#   Copyright © 2010 Eugeniy Meshcheryakov <eugen@debian.org>
+#   Copyright © 2010-2012 Eugeniy Meshcheryakov <eugen@debian.org>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU Lesser General Public License as published by
@@ -521,11 +521,27 @@ class Record(object):
             Traceback (most recent call last):
                 ...
             DataSizeError: 258
+            >>> # invalid day/month/etc
+            >>> r = r = Record(tags.BGNLIB, [100, 0, 1, 1, 2, 3, 110, 8, 32, 21, 10, 35])
+            >>> print(r.times[0].isoformat())
+            1900-01-01T00:00:00
+            >>> print(r.times[1].isoformat())
+            1900-01-01T00:00:00
         """
         if len(self.data) != 12:
             raise exceptions.DataSizeError(self.tag)
-        return (datetime(self.data[0]+1900, *self.data[1:6]),
-                datetime(self.data[6]+1900, *self.data[7:12]))
+
+        try:
+            mod_time = datetime(self.data[0]+1900, *self.data[1:6])
+        except ValueError:
+            mod_time = datetime(1900, 1, 1, 0, 0, 0)
+
+        try:
+            acc_time = datetime(self.data[6]+1900, *self.data[7:12])
+        except ValueError:
+            acc_time = datetime(1900, 1, 1, 0, 0, 0)
+
+        return mod_time, acc_time
 
     @property
     def acls(self):
