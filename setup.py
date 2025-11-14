@@ -17,7 +17,7 @@ setup(
     long_description = long_desc,
     author = 'Eugeniy Meshcheryakov',
     author_email = 'eugen@debian.org',
-    url = 'http://www.gitorious.org/python-gdsii',
+    url = 'https://github.com/eugmes/python-gdsii',
     packages = ['gdsii'],
     scripts = [
         'scripts/gds2txt',
