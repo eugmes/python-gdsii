@@ -24,7 +24,7 @@ This module contains class that represents a GDSII library.
 """
 from __future__ import absolute_import
 from . import exceptions, record, structure, tags, _records
-from datetime import datetime
+from datetime import datetime, timezone
 
 _HEADER = _records.SimpleRecord('version', tags.HEADER)
 _BGNLIB = _records.TimestampsRecord('mod_time', 'acc_time', tags.BGNLIB)
@@ -77,8 +77,8 @@ class Library(list):
         self.name = name
         self.physical_unit = physical_unit
         self.logical_unit = logical_unit
-        self.mod_time = mod_time if mod_time is not None else datetime.utcnow()
-        self.acc_time = acc_time if acc_time is not None else datetime.utcnow()
+        self.mod_time = mod_time if mod_time is not None else datetime.now(timezone.utc)
+        self.acc_time = acc_time if acc_time is not None else datetime.now(timezone.utc)
         self._init_optional()
 
     def _init_optional(self):
