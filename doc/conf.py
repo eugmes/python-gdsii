@@ -38,7 +38,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'python-gdsii'
-copyright = u'2010–2011, Eugeniy Meshcheryakov'
+copyright = u'2010–2025, Ievgenii Meshcheriakov'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -173,7 +173,7 @@ html_static_path = ['_static']
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'pygdsii.tex', u'python-gdsii Documentation',
-   u'Eugeniy Meshcheryakov', 'manual'),
+   u'Ievgenii Meshcheriakov', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
