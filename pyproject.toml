@@ -1,3 +1,43 @@
 [build-system]
-requires = ["setuptools >= 64"]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-gdsii"
+description = "GDSII manipulation library"
+dynamic = ["version"]
+license = "LGPL-3.0-or-later"
+license-files = ["LGPL-3"]
+authors = [
+    {name = "Ievgenii Meshcheriakov", email = "eugen@debian.org"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+readme = "README.rst"
+
+[project.scripts]
+gds2txt = "gdsii.scripts.gds2txt:run"
+txt2gds = "gdsii.scripts.txt2gds:run"
+gds2yaml = "gdsii.scripts.gds2yaml:run"
+
+[project.urls]
+Documentation = "https://python-gdsii.readthedocs.io/en/latest/"
+Repository = "https://github.com/eugmes/python-gdsii.git"
+Issues = "https://github.com/eugmes/python-gdsii/issues"
+
+[project.optional-dependencies]
+yaml = ["pyyaml"]
+
+[tool.pytest]
+# gds2yaml requires pyyaml, so don't test it by default
+addopts = ["--doctest-modules", "--ignore-glob=*gds2yaml.py", "--import-mode=importlib"]
+doctest_optionflags = ["IGNORE_EXCEPTION_DETAIL"]
+
+[tool.setuptools_scm]
+tag_regex = "^release-(?P<version>[0-9]+\\.[0-9]+(\\.[0-9]+)?)$"

@@ -1,5 +1,3 @@
-#! /usr/bin/python
-# -*- coding: utf-8 -*-
 # Copyright © 2010 Eugeniy Meshcheryakov <eugen@debian.org>
 # This file is licensed under GNU Lesser General Public License version 3 or later.
 """Demonstration program for basic gdsii reading function."""
@@ -27,10 +25,13 @@ def main(name):
 def usage(prog):
     print('Usage: %s <file.gds>' % prog)
 
-if __name__ == '__main__':
+def run():
     if (len(sys.argv) > 1):
         main(sys.argv[1])
     else:
         usage(sys.argv[0])
         sys.exit(1)
     sys.exit(0)
+
+if __name__ == '__main__':
+    run()
