@@ -41,3 +41,4 @@ doctest_optionflags = ["IGNORE_EXCEPTION_DETAIL"]
 
 [tool.setuptools_scm]
 tag_regex = "^release-(?P<version>[0-9]+\\.[0-9]+(\\.[0-9]+)?)$"
+local_scheme = "dirty-tag"
