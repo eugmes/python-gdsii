@@ -14,7 +14,13 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   gdsii/index
+   gdsii/library
+   gdsii/structure
+   gdsii/elements
+   gdsii/tags
+   gdsii/types
+   gdsii/record
+   gdsii/exceptions
 
 Download
 --------
