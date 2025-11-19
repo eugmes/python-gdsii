@@ -1,4 +1,4 @@
-python-gdsii --- a GDSII manipulation libaray
+python-gdsii --- a GDSII manipulation library
 =============================================
 
 python-gdsii is a library that can be used to read, create, modify and save
